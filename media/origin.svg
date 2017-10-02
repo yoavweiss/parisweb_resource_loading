@@ -1,0 +1,36 @@
+<svg class="diagram" width="1120" height="240" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink">
+<!-- Network -->
+<defs>
+    <g id="network">
+        <g transform="translate(10, 20)">
+            <image xlink:href="phone.svg" />
+        </g>
+        <g transform="translate(100, 0)">
+            <image xlink:href="cloud.svg" transform="scale(0.4)"/>
+        </g>
+        <g transform="translate(370, 30)">
+            <image xlink:href="servers.svg" />
+        </g>
+        <g transform="translate(520, 0)">
+            <image xlink:href="cloud.svg" transform="scale(0.4)"/>
+        </g>
+        <g transform="translate(800, 30)">
+            <image xlink:href="servers.svg" />
+        </g>
+        <g transform="translate(940, 30)">
+            <image xlink:href="servers.svg" />
+        </g>
+    </g>
+</defs>
+<use xlink:href="#network" x="0" y="40"/>
+<!-- Annotation -->
+<text x="20" y="30" font-size="30px" font-weight="bold">User</text>
+<text x="220" y="30" font-size="30px" font-weight="bold">ISP</text>
+<text x="400" y="30" font-size="30px" font-weight="bold">Edge</text>
+<text x="590" y="30" font-size="30px" font-weight="bold">Internet</text>
+<text x="810" y="30" font-size="30px" font-weight="bold">Reverse</text>
+<text x="810" y="60" font-size="30px" font-weight="bold">Proxy</text>
+<text x="965" y="30" font-size="30px" font-weight="bold">Origin</text>
+<circle cx="1010" cy="137" r="10" fill="red"></circle>
+<text x="930" y="230" font-size="30px" font-weight="bold" fill="red">You Are Here</text>
+</svg>

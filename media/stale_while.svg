@@ -1,0 +1,61 @@
+<svg class="diagram" width="950" height="210" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink">
+<!-- Network -->
+<defs>
+    <g id="network">
+        <g transform="translate(10, 20)">
+            <image xlink:href="phone.svg" />
+        </g>
+        <g transform="translate(370, 30)">
+            <image xlink:href="servers.svg" />
+        </g>
+        <g transform="translate(800, 30)">
+            <image xlink:href="servers.svg" />
+        </g>
+    </g>
+</defs>
+<use xlink:href="#network" x="0" y="40"/>
+<!-- Annotation -->
+<text x="20" y="30" font-size="30px" font-weight="bold">User</text>
+<text x="400" y="30" font-size="30px" font-weight="bold">Cache</text>
+<text x="810" y="30" font-size="30px" font-weight="bold">Origin</text>
+<text x="150" y="65" font-size="20px">Request</text>
+<g transform="translate(100, 80)">
+    <g id="right" stroke="#CE561E" stroke-width="4">
+        <line x1="0" y1="0" x2="260" y2="0"></line>
+        <g stroke-width="2">
+            <line x1="240" y1="10" x2="262" y2="0"></line>
+            <line x1="240" y1="-10" x2="262" y2="0"></line>
+        </g>
+    </g>
+</g>
+<text x="150" y="115" font-size="20px">Stale response</text>
+<g transform="translate(100, 125)">
+    <g id="left" stroke="#CE561E" stroke-width="4">
+        <line x1="0" y1="0" x2="260" y2="0"></line>
+        <g stroke-width="2">
+            <line x1="-2" y1="0" x2="20" y2="10"></line>
+            <line x1="-2" y1="0" x2="20" y2="-10"></line>
+        </g>
+    </g>
+</g>
+<text x="550" y="115" font-size="20px">Request</text>
+<g transform="translate(520, 125)">
+    <g id="right" stroke="#CE561E" stroke-width="4">
+        <line x1="0" y1="0" x2="260" y2="0"></line>
+        <g stroke-width="2">
+            <line x1="240" y1="10" x2="262" y2="0"></line>
+            <line x1="240" y1="-10" x2="262" y2="0"></line>
+        </g>
+    </g>
+</g>
+<text x="550" y="160" font-size="20px">Fresh response</text>
+<g transform="translate(520, 170)">
+    <g id="left" stroke="#CE561E" stroke-width="4">
+        <line x1="0" y1="0" x2="260" y2="0"></line>
+        <g stroke-width="2">
+            <line x1="-2" y1="0" x2="20" y2="10"></line>
+            <line x1="-2" y1="0" x2="20" y2="-10"></line>
+        </g>
+    </g>
+</g>
+</svg>

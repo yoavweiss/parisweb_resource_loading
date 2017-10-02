@@ -31,8 +31,20 @@ img { /* common CSS for fluid rescaling, but respecting the image's actual pixel
 .wide>img {
     min-width: 100%;
 }
+.inline {
+    display: flex;
+    flex-direction: row;
+    justify-content: space-around;
+    flex-wrap: nowrap;
+    align-items: center;
+    width: 100%;
+}
 .inline>img {
-    display: inline-block;
+    width: 200px;
+}
+
+.center>ul{
+    padding-left: 200px;
 }
 
 
