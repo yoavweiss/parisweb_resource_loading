@@ -241,8 +241,39 @@ The above is the theory but in practice implementations have much more complex l
 blocking scripts at the bottom. Async scripts are lower priority than blocking scripts. In-viewport images are higher priority than
 out-of-viewport images. And this entire logic can vary between browsers and between browser versions.
 ---
-background-image: url(media/dependency_tree.jpeg)
-## Dependencies!
+
+![](media/tree_html_only.svg)
+
+???
+The browser starts out by just downloading the HTML. That's the only URL it's aware of.
+
+---
+
+![](media/tree_html_first_subresources.svg)
+
+???
+
+Then as the HTML is processed, CSS, images and scripts are discovered.
+---
+
+![](media/tree_html_second_subresources.svg)
+
+???
+
+But in many cases, CSS and scripts load other resources.
+---
+
+![](media/tree_html_third_subresources.svg)
+
+???
+
+Which then can load even more resources
+
+
+CSS background images are declared in CSS, so discoverable only when the browser calculates the style.
+Fonts were later added to the mix, and fonts are even more complicated. As they're only downloaded when the browser knows that they will be
+used. So it has to calculate the style, and cross those style with the DOM to see if the resource is really needed.
+
 ---
 
 ## Performance issues
@@ -264,9 +295,9 @@ Let's go over these problems in detail and see how we can reduce the
 pain they cause.
 
 ---
+background-image: url(media/servers.jpg)
 
 # Server side processing
-(High performance websites book)
 
 ???
 
@@ -281,8 +312,8 @@ At Akamai we see median server side performance times (or TTFB between the edge 
 is a lot, especially if you consider the 3 seconds performance budget.
 
 ---
-Flush early
-(toilet photo)
+background-image: url(media/flush.jpg)
+#Flush early
 
 ???
 Early advice on server side performance had the advice to "flush early"
@@ -312,7 +343,9 @@ is just as guilty, as the entire script has to be processed before the
 resource download can start.
 
 ---
-(Dependency graph image)
+
+background-image: url(media/dependency_tree.jpeg)
+## Dependencies!
 
 ???
 And this creates a dependency tree that's deep and contains many nodes,
@@ -338,6 +371,7 @@ make it harder for the browser, adding another layer to that dependency
 tree.
 
 ---
+background-image: url(media/bloat.jpg)
 
 # Bloat
 
@@ -358,6 +392,7 @@ high-end, high-bandwidth user experience to all devices.
 
 
 ---
+background-image: url(media/devices.jpg)
 
 # Client side processing
 
@@ -378,6 +413,10 @@ also tend to peg down the mobile device's CPU as their JS is being
 processed (show timeline with CPU).
 
 
+---
+layout: true
+class: center, middle
+background-image: url(media/taking_back_control.jpg)
 ---
 # Third parties
 
@@ -406,7 +445,13 @@ But when people talk about "third party performance problems" they usually confl
 ## Hogging main thread
 ---
 
-# What can we do about it?
+layout: true
+class: center, middle
+background-image: url(media/fast.jpg)
+---
+## What can we do about it?
+![](media/whatcanido.jpg)
+
 
 ---
 # Server Side processing
@@ -512,6 +557,11 @@ applicable...
 * https://www.flickr.com/photos/64252494@N07/7573429776 - FasT
 * https://www.flickr.com/photos/eye-colored_mascara/16931514349 - stay weird
 * https://www.flickr.com/photos/paigegphotography/4436216843 - dictionary
+* https://www.flickr.com/photos/torkildr/3462607995 - servers
+* https://www.flickr.com/photos/pheezy/3759117573 - flush
+* https://www.flickr.com/photos/lorenjavier/5013332959 - bloat
+* https://www.flickr.com/photos/adactio/12674230513 - devices
+* https://www.flickr.com/photos/jastrow/6347298190/ - taking back control
 
 * https://www.flickr.com/photos/68784095@N00/7883688474 - magic 8ball
 * https://www.flickr.com/photos/puuikibeach/24657325864/ - treasure chest

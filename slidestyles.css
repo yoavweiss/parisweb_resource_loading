@@ -108,6 +108,12 @@ body {
 table {
     background-color: rgba(128, 128, 128, 0.8);
 }
+.remark-slide-content>div>ul ,
+.remark-slide-content>div li,
+.remark-slide-content>div p{
+    background-color: transparent;
+}
+
 .remark-slide-content .bright>img,
 .remark-slide-content.bright p{
     background-color: rgba(196, 196, 196, 0.8);

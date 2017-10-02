@@ -1,0 +1,8 @@
+<svg class="diagram" width="850.3" height="600" viewBox="0 0 850.3 600" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink">
+<g transform="scale(0.8), translate(300, 0)">
+<g>
+<rect x="320" y="10" width="200" height="100" rx="15" ry="15" stroke="black" style="fill: white; border: 4px solid black;"/>
+<text x="340" y="75" font-size="55">HTML</text>
+</g>
+</g>
+</svg>
