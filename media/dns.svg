@@ -27,30 +27,6 @@
             </g>
         </g>
     </g>
-    <text x="180" y="90" font-size="20px">TCP SYN</text>
-    <text x="180" y="120" font-size="20px">TCP SYN+ACK</text>
-    <g transform="translate(150, 10)">
-        <g id="rtt" stroke="#CE561E" stroke-width="4">
-            <use x="0" y="85" xlink:href="#right" />
-            <use x="0" y="115" xlink:href="#left" />
-        </g>
-    </g>
-    <text x="180" y="160" font-size="20px">ACK + Client Hello</text>
-    <text x="180" y="190" font-size="20px">Server Hello + Certificate</text>
-    <g transform="translate(150, 85)">
-        <use xlink:href="#rtt" />
-    </g>
-    <text x="180" y="230" font-size="20px">ClientKeyExchange</text>
-    <text x="180" y="260" font-size="20px">Server Finished</text>
-    <g transform="translate(150, 150)">
-        <use xlink:href="#rtt" />
-    </g>
-    <text x="180" y="300" font-size="20px">HTTP GET request</text>
-    <g transform="translate(150, 40)">
-        <g id="rtt" stroke="#CE561E" stroke-width="4">
-            <use x="0" y="275" xlink:href="#right" />
-        </g>
-    </g>
 </g>
 
 </g>

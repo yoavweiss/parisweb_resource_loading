@@ -18,12 +18,16 @@
 layout: true
 class: center, middle
 background-image: url(media/fast.jpg)
+
+.low-right[@yoavweiss]
 ---
 
 ## Faster Bytes are not Enough!!
 ## Why is the web slow?
-## (and what can we do about it)
+### (and what can we do about it)
 
+<br>
+<br>
 .center[Yoav Weiss&nbsp;&nbsp;|&nbsp;&nbsp;   @yoavweiss]
 .right[![](media/Akamai-Logo-RGB.png)]
 
@@ -32,10 +36,10 @@ background-image: url(media/fast.jpg)
 Hi, I'm Yoav Weiss. I work at Akamai on making our CDN as well as browsers faster, and I'm here today to
 talk about why the Web is inherently slow (which is a sad thing to say in a performance conference), and how can we make it faster despite that fact.
 ---
-#.large[&#128116;]
+background-image: url(media/pc.jpg)
 
 ???
-I’m kinda old. When I first started in the industry, I was working on a
+I’ve been in this industry for a while now. When I first started in the industry, I was working on a
 web optimization proxy, as one does. My very first task was to build a
 proprietary SPDY-like client-server protocol in order to be able to send
 multiple requests and receive multiple responses at once over a single
@@ -45,7 +49,7 @@ size reduction on the images. And network bandwidth at the time was a
 serious issue, with top-notch mobile networks clocking at a cool
 33kbps!! 
 ---
-#.large[&#128576;]
+background-image: url(media/surprise.jpg)
 
 ???
 But, we soon noticed something odd. Even with those awful
@@ -58,6 +62,7 @@ bytes we’re sending down by a factor of 2, why aren’t we seeing 2x
 performance improvements???
 
 ---
+
 # Latency!
 
 ???
@@ -76,6 +81,7 @@ The industry has moved on, and those problems are all gone, *right*?
 Well, we have advanced a lot in the last… almost 20 years. I’m really
 old...
 ---
+
 # Better *everything*!
 
 ???
@@ -214,6 +220,11 @@ the user and the graphics layer paints it all on the user's screen. It's a delic
 So what happens when a user clicks on a link or types in an address in their browser's URL bar?
 
 ---
+![](media/dns.svg)
+---
+
+![](media/dnstcp.svg)
+---
 ![](media/dnstcptls.svg)
 
 ---
@@ -223,6 +234,7 @@ So what happens when a user clicks on a link or types in an address in their bro
 #PreloadScanner
 ![](media/tokenization.svg)
 ---
+
 #Resource loading
 
 ???
@@ -232,6 +244,7 @@ These resources are discovered by the preload scanner, by calculating style and 
 ---
 ![](media/critical_rendering_path.png)
 ---
+
 # Priority
 
 ### HTML > CSS > JS > Fonts > Images
@@ -328,7 +341,7 @@ without reloading the whole thing).
 ---
 
 # Discovery
-_show a bandwidth graph with holes in it_
+![](media/discovery.png)
 
 ???
 Because of the way browsers work, because the browser has to download
@@ -381,6 +394,10 @@ Traditionally we have been building web sites for desktops.
 Also traditinally, we compressed our images to avoid that kind of
 experience
 (autoplaying video of an image downloading slowly)
+---
+background-image: url(media/images_trend.png)
+
+???
 As broadband got better, we compressed our images less and less (HTTP
 archive graph), and added more of them. And for our mobile version of
 the site, we kept it slim.
@@ -417,7 +434,10 @@ processed (show timeline with CPU).
 layout: true
 class: center, middle
 background-image: url(media/taking_back_control.jpg)
+
+.low-right[@yoavweiss]
 ---
+
 # Third parties
 
 ???
@@ -428,46 +448,54 @@ else that's doing a bad thing, and you're innocent :)
 But when people talk about "third party performance problems" they usually conflate many different things.
 
 ---
+
 ## Render blocking
 
 ---
+
 ## SPOF
 
 ---
+
 ## Bandwidth contention with more critical resources
 ---
+
 ## Excessive downloads
 ---
+
 ## Periodic downloads
 ---
+
 ## Scroll/touch performance
 ---
+
 ## Hogging main thread
 ---
 
 layout: true
 class: center, middle
 background-image: url(media/fast.jpg)
+
+.low-right[@yoavweiss]
 ---
+background-image: url(media/controls.jpg)
 ## What can we do about it?
-![](media/whatcanido.jpg)
 
 
 ---
+background-image: url(media/servers.jpg)
 # Server Side processing
 ---
+background-image: url(media/servers.jpg)
 # H2 push
 ---
+background-image: url(media/servers.jpg)
 # Early hints
 ---
+background-image: url(media/discovery.png)
 # Discovery
----
-# H2 push
----
-# Preload
 
 ???
-
 One solution for that tension is build scripts that take your
 dependencies and mush them into a single blob.
 
@@ -480,8 +508,36 @@ What are the solutions to that problem:
 * H2 push can be used to push critical resources before the browser
   discovers them and realizes that it needs them.
 * Link rel preload can be used to preload critical
+---
+background-image: url(media/discovery.png)
+# H2 push
+---
+background-image: url(media/discovery.png)
+# Preload
 
+???
 
+---
+
+# Preload &gt; Push
+
+* Cross origin
+* Cache + cookies
+* Content negotiation
+* Load/error events
+
+---
+
+# Preload &lt; Push
+
+.center[![](media/espn_bandwidth_pre_html.png)]
+
+---
+
+# Preload &lt; Push
+
+.center[![](media/espn_bandwidth_pre_html_potential.png)]
+???
 What's the difference between preload and push?
 (bring in slide from other talk)
 
@@ -495,8 +551,10 @@ we push and preload everything that's needed.
 
 Aside on preload and priorities.
 ---
+background-image: url(media/bloat.jpg)
 # Bloat
 ---
+background-image: url(media/bloat.jpg)
 # Responsive images
 
 ???
@@ -519,13 +577,17 @@ There's also much progress on bloat in terms of better compression
 algorithms, better image formats, etc.
 
 ---
+background-image: url(media/bloat.jpg)
 # Brotli
 ---
+background-image: url(media/bloat.jpg)
 # H2 shared dictionaries
 ---
+
 # 3rd parties
 
 ---
+
 # Client-side processing
 
 
@@ -544,27 +606,34 @@ Build steps can help (webpack, etc), but they're not always
 applicable...
 
 ---
+
 # Thank you!
 
 .center[Yoav Weiss&nbsp;&nbsp;|&nbsp;&nbsp;   @yoavweiss]
 ![](media/Akamai-Logo-RGB.png)
 ---
+
 # Questions?
 .center[Yoav Weiss&nbsp;&nbsp;|&nbsp;&nbsp;   @yoavweiss]
 ![](media/Akamai-Logo-RGB.png)
 
+---
+
 ### Credits
-* https://www.flickr.com/photos/64252494@N07/7573429776 - FasT
+* https://www.flickr.com/photos/64252494@N07/7573429776 - Fast
 * https://www.flickr.com/photos/eye-colored_mascara/16931514349 - stay weird
 * https://www.flickr.com/photos/paigegphotography/4436216843 - dictionary
 * https://www.flickr.com/photos/torkildr/3462607995 - servers
 * https://www.flickr.com/photos/pheezy/3759117573 - flush
 * https://www.flickr.com/photos/lorenjavier/5013332959 - bloat
+
+---
+
+### Credits
 * https://www.flickr.com/photos/adactio/12674230513 - devices
 * https://www.flickr.com/photos/jastrow/6347298190/ - taking back control
-
-* https://www.flickr.com/photos/68784095@N00/7883688474 - magic 8ball
-* https://www.flickr.com/photos/puuikibeach/24657325864/ - treasure chest
-* https://gist.github.com/hellerbarde/2843375 - Access speed numbers
+* https://www.flickr.com/photos/stooart/542546060/ - controls
+* https://www.flickr.com/photos/medienzeitmaschine/5150471651 - IBM PC
+* https://www.flickr.com/photos/ryanlavering/5180531131/ - surprise
 
 </textarea><script type="text/javascript" src="remark-latest.min.js"></script></body></html>

@@ -55,7 +55,8 @@ html {
 }
 
 body {
-    font-family: "Helvetica Neue Light", "HelveticaNeue-Light", "Helvetica Neue", Calibri, Helvetica, Arial, sans-serif;
+    //font-family: "Helvetica Neue Light", "HelveticaNeue-Light", "Helvetica Neue", Calibri, Helvetica, Arial, sans-serif;
+    font-family: Lucida Grande, Helvetica, Arial, sans-serif;
     -webkit-text-size-adjust: 100%;
     -moz-text-size-adjust: 100%;
     -ms-text-size-adjust: 100%;
@@ -106,7 +107,7 @@ body {
 .remark-slide-content ul,
 .remark-slide-content p,
 table {
-    background-color: rgba(128, 128, 128, 0.8);
+    background-color: rgba(128, 128, 128, 0.9);
 }
 .remark-slide-content>div>ul ,
 .remark-slide-content>div li,
@@ -116,7 +117,7 @@ table {
 
 .remark-slide-content .bright>img,
 .remark-slide-content.bright p{
-    background-color: rgba(196, 196, 196, 0.8);
+    background-color: rgba(196, 196, 196, 0.9);
 }
 
 table {
@@ -380,4 +381,11 @@ h3 .remark-inline-code {
 
 .blackbg {
     box-shadow: 0px 9999px rgba(13, 13, 13, 0.4) inset;
+}
+
+.low-right {
+    position: absolute;
+    bottom: 10px;
+    right: 100px;
+
 }
