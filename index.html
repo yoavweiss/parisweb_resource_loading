@@ -114,6 +114,14 @@ I'm of a firm belief that in order to understand how to make something work bett
 first place. And as a browser engineer, I really think everyone working on the web should know more about how browsers work.
 
 ---
+
+# We'll discuss:
+.center.big[
+* How browsers work
+* Web Performance issues
+* Solutions
+]
+---
 class: contain
 background-image: url(media/dictionary.jpg)
 
@@ -172,23 +180,6 @@ web is a network of interconnected attractions on those roads, URLs is
 the road signs (stretching it, I know) and the browser is the vehicle we
 can use to move from one location to the next.
 ---
-class: contain
-background-image: url(media/blank_screen.png)
-
-???
-But many people fail to make a distinction. Your users fail to make
-that distinction, and often when they download a series of slow web
-sites, their reaction would be “the internet is slow”.
-They perceive slow networks the same way they perceive slow websites -
-as a blank page that’s staring them in the face for seconds on end.
-So if you are an internet provider, slow web sites mean that people will
-think the service you provide is bad, even if the network you provide
-has excellent bandwidth and latency characteristics. And if you’re a CDN
-provider, “shorter roads” in our metaphor won’t necessarily help the end
-user a whole lot if the slowest component is actually the “attraction”
-itself.
-
----
 .inline[![](media/chrome.png)
 ![](media/safari.png)
 ![](media/firefox.png)
@@ -199,12 +190,15 @@ itself.
 So how do browsers load web pages?
 
 ---
+
 ##What's in a browser?
+.center.big[
 * Rendering engine
 * Javascript engine
 * Graphics layer
 * Networking layer
 * Image, video & audio decoders
+]
 
 ???
 
@@ -220,17 +214,21 @@ the user and the graphics layer paints it all on the user's screen. It's a delic
 So what happens when a user clicks on a link or types in an address in their browser's URL bar?
 
 ---
+class: bright
 ![](media/dns.svg)
 ---
 
+class: bright
 ![](media/dnstcp.svg)
 ---
+class: bright
 ![](media/dnstcptls.svg)
 
 ---
 .center[![](media/tcp_slow_start.png)]
 
 ---
+class: bright
 #PreloadScanner
 ![](media/tokenization.svg)
 ---
@@ -291,7 +289,7 @@ used. So it has to calculate the style, and cross those style with the DOM to se
 
 ## Performance issues
 
-.center[
+.center.big[
 * Server side processing
 
 * Discovery
@@ -604,6 +602,21 @@ be hard configure and get in place.
 
 Build steps can help (webpack, etc), but they're not always
 applicable...
+
+---
+
+# Take-aways
+---
+
+## Latency still dominates Web performance
+
+---
+
+## Multiple reasons why your content may be slow
+
+---
+
+## Ion and browser work underway to solve it
 
 ---
 
