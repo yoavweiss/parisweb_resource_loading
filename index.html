@@ -153,6 +153,11 @@ first place. And as a browser engineer, I really think everyone working on the w
 * Web Performance issues
 * Solutions
 ]
+
+???
+
+(6 minutes)
+
 ---
 class: contain
 background-image: url(media/dictionary.jpg)
@@ -282,7 +287,7 @@ class: bright
 
 ???
 
-Once the browser actually sends the HTML down to the browser, the browser starts processing it.
+Once the server actually sends the HTML down to the browser, the browser starts processing it.
 It tokenizes the HTML, and runs it through its preloader, in order to find out ASAP which resources it needs to load.
 ---
 
@@ -319,7 +324,7 @@ out-of-viewport images. And this entire logic can vary between browsers and betw
 ![](media/tree_html_only.svg)
 
 ???
-So, the browser starts out by just downloading the HTML. That's the only URL it's aware of.
+So, if we look at our resource download dependency tree, the browser starts out by just downloading the HTML. That's the only URL it's aware of.
 
 ---
 
@@ -348,6 +353,7 @@ CSS background images are declared in CSS, so discoverable only when the browser
 Fonts were later added to the mix, and fonts are even more complicated. As they're only downloaded when the browser knows that they will be
 used. So it has to calculate the style, and cross those style with the DOM to see if the resource is really needed.
 
+(13 minutes)
 ---
 
 ## Performance issues
@@ -512,25 +518,51 @@ But when people talk about "third party performance problems" they usually confl
 
 ## Render blocking
 
+???
+
+Some third parties are render blocking and will slow down your web site's first paint if they're slow to load.
 ---
 
 ## SPOF
 
+???
+Others, when loaded as blocking scripts or render critical CSS, can effectively DoS your site if they fail to load for some reason.
 ---
 
 ## Bandwidth contention with more critical resources
+
+???
+What often happens is that since third parties are download over separate H2 connections from different servers, their resources often
+contend on bandwidth with your site's resources, and can slow them down, even if they are not blocking in and of themselves.
 ---
 
 ## Excessive downloads
+
+???
+Then there's the issue of badly behaving third parties which download excessive amounts of content which the user doesn't necessarily care
+about.
 ---
 
 ## Periodic downloads
+
+???
+They often send periodic beacons which wake up the user's radio network and drain the user's battery.
 ---
 
 ## Scroll/touch performance
+
+???
+They hijack the user's scroll and touch events in order to keep tabs on their activity on the page, which can easily result in janky scroll
+and touch user experience on your site.
 ---
 
 ## Hogging main thread
+
+???
+Finally, downloading massive amounts of scripts and images can easily cause main thread contention, where the browser is mostly executing
+javascript and decodes images for third parties rather than render your content, or react to your users actions.
+
+(21 minutes)
 ---
 
 layout: true
@@ -542,43 +574,112 @@ background-image: url(media/fast.jpg)
 background-image: url(media/controls.jpg)
 ## What can we do about it?
 
+???
+
+Are we all properly depressed yet?
+Everything is awful and slow.
+
+So, how do we solve this? What can we do about it?
+How can we make our websites fast despite all this awfulness?
+
+aside: I'll briefly go over the solutions, as explaining them in depth can take a full presentation on its own. But feel free to grab me
+later for any details you're missing. I'll also be happy to direct you to some reading material about them.
 
 ---
 background-image: url(media/servers.jpg)
 # Server Side processing
----
-background-image: url(media/servers.jpg)
-# H2 push
----
-background-image: url(media/servers.jpg)
-# Early hints
----
-background-image: url(media/discovery.png)
-# Discovery
 
 ???
-One solution for that tension is build scripts that take your
-dependencies and mush them into a single blob.
+It's hard to give you generic advice on how to speed up your server side processing. You can instrument and figure out which operations take
+time, and try to speed them up, but at the end of the day, executing complex, scalable applications to create dynamic HTML pages can take
+time.
 
-That can be better, but:
-* You have to parse the whole thing before anything is requested, so
-  making a large unified resource can sometimes turn up to be slower.
-* You're messing up the caching granularity
+It also doesn't help that the default runtime of many high level languages such as Python and Ruby is not extremely fast be default.
 
-What are the solutions to that problem:
-* H2 push can be used to push critical resources before the browser
-  discovers them and realizes that it needs them.
-* Link rel preload can be used to preload critical
+But even if our backend times can be slow at times, that doesn't mean we can't put this waiting time to good use.
+---
+background-image: url(media/servers.jpg)
+# H2 push
+
+???
+
+Server push is a feature of the HTTP/2 protocol, which enables us to send down resources before the browser requested them.
+As such, it enables us to put the network connection to good use while we're waiting for the HTML to be generated by the server.
+---
+
+# Using the wait time
+
+.center[![](media/espn_bandwidth_pre_html.png)]
+
+???
+
+In other words it enables us to turn this bandwidth graph, into this.
+
+---
+
+# Using the wait time
+
+.center[![](media/espn_bandwidth_pre_html_potential.png)]
+---
+![](media/page_loading_nopush.svg)
+
+???
+300 ms think time
+100 ms RTT
+98KB CSS+JS
+120KB HTML
+
+---
+![](media/page_loading_push.svg)
+
+???
+
+Another advantage of this is that it enables us to warn up the TCP connection while waiting for the HTML, which can significantly reduce the
+amount of RTTs and time it takes us to send down the HTML and the critical CSS and JS resources.
+---
+
+# Discovery
+![](media/discovery.png)
+
+???
+
+We've seen earlier that discovery is a real issue. The browser cannot download the resources it doesn't know about,
+so it has to download resources in order to know what other resources to download, making the whole process highly dependent on latency.
+
+What are the solutions to that problem?
+---
+background-image: url(media/discovery.png)
+# Preconnect
+
+## `<link rel=preconnect>`
+???
+
+A first step which can help, at least for blocking third parties is to preconnect to their host.
+That can eliminate large parts of the latency required to fetch them: DNS, TCP and TLS, or at least take these parts out of the critical
+path.
+
 ---
 background-image: url(media/discovery.png)
 # H2 push
+
+???
+
+We already discussed H2 push in the context of server side processing, but it can have a double impact here.
+H2 push can be used to push critical resources before the browser
+  discovers them and realizes that it needs them. And it can do that before the HTML arrived.
 ---
 background-image: url(media/discovery.png)
 # Preload
 
+## `<link rel=preload>`
 ???
 
+Preload is another recent feature that I've been working on. It enables you to tell the browser to kick off the download of a certain
+resource, without defining the exact point where the resource would be used. So, it decouples download from execution, and enables you to
+"flatten" the dependency tree by preloading late-discovered resources ahead of time.
+
 ---
+background-image: url(media/discovery.png)
 
 # Preload &gt; Push
 
@@ -587,40 +688,110 @@ background-image: url(media/discovery.png)
 * Content negotiation
 * Load/error events
 
+???
+If we compare preload to push, it has multiple advantages: it can work for third party resources where H2 push is essentially meant for
+resources under the first party's control. It also takes the cache state into account, as well as the cookies on the client side, where push
+cannot do that. It can be used in content-negotiation scenarios, so for example can be used to fetch webp images only to browsers that
+supprot them, using `Accept` headers. On top of that, it has load and error events, enabling you to build complex JS based loading logic
+using preload.
+
 ---
-
-# Preload &lt; Push
-
-.center[![](media/espn_bandwidth_pre_html.png)]
-
----
+background-image: url(media/discovery.png)
 
 # Preload &lt; Push
 
 .center[![](media/espn_bandwidth_pre_html_potential.png)]
 ???
-What's the difference between preload and push?
-(bring in slide from other talk)
 
+What's push biggest advantage? The one we've seen before: it can be used to "fill up" the idle times before the browser the browser received
+the HTML, resulting in a significant boost to the time the user first sees content on the screen.
+
+---
+background-image: url(media/discovery.png)
+
+.left[
+```javascript
+let img = new Image();
+if (Math.random() > 0.5) {
+    img.src = "image1.jpg";
+} else {
+    img.src = "image2.jpg";
+}
+```
+]
+
+???
 Does push and preload solve all discoverability problems?
 Not really, sometimes actual JS needs to run on the client in order to
 figure out what resource the browser will need
 (show code that randomally pick either img)
 
 But as web developers, we can try to limit that variablity and make sure
-we push and preload everything that's needed.
+we push and preload everything we can that's needed.
 
-Aside on preload and priorities.
+---
+background-image: url(media/discovery.png)
+
+# Adaptive Acceleration
+
+???
+And because Ted made me explicitly say it: preconnect, H2 push are currently available as part of Adaptive Acceleration, and automatic preload will soon also
+be included.
+
+(Ted's face as a background)
+
+---
+background-image: url(media/discovery.png)
+# Early hints
+
+???
+A recent standard proposal also suggests to define a way for us to be able to send headers to the browser before the response is complete,
+which can enable us to send instructions to the browser to preconnect hosts or preload resources before the response is ready, which can be
+helpful to speed up blocking third parties, especially if they are lately discovered.
+---
+background-image: url(media/discovery.png)
+
+# Priorities
+
+##`<link rel=preload as=script>`
+
+???
+Just a short aside: preload enables the browser to assign the right priorities to the resource in question by declaring the type of resource
+using the `as` attribute. I'm also working on a different specification that will enable us to define explicit priorities for certain
+resources, and change their default priorities.
+
+(29 minutes)
 ---
 background-image: url(media/bloat.jpg)
 # Bloat
+
+???
+What can we do about bloat? What can we do about the fact that we're sending too much content down?
+Well, the good news here is that bloat is in our hands. We just need to send less bytes down the wire.
+---
+background-image: url(media/bloat.jpg)
+# Image Compression
+
+???
+
+The first and obvious step against bloat is better image compression. That's often easier said than done.
+While the lossless aspects of image compression are obvious to automate, as they don't impact the visible quality, the lossy parts are
+harder, as you need to make sure you're compressing as much as you can without creating visible artifacts that will degrade the user
+experience and will ultimately impact conversions (plus you'd have your designers on our back).
+
+But there are multiple open source projects that you can integrate into your build process and can help you get better compression results.
 ---
 background-image: url(media/bloat.jpg)
 # Responsive images
 
+## `<picture>`
+## `srcset` & `sizes`
 ???
 
-The web performance community formed the Responsive Images Community
+And then there's responsive images.
+We talked before about the fact that responsive design initially resulted in sending high resolution images to all devices.
+
+The web performance community realized that this is a huge issue, formed the Responsive Images Community
 Group, and after a long while and numerous arguments, we managed to
 convince browser vendors that we need to a way to specify multiple
 images for browsers to download, based on their device dimensions,
@@ -630,22 +801,58 @@ And we came up with `<picture>`, srcset and sizes, specified them and
 shipped them in browsers.
 
 That, along with Client Hints, gives us the tools to manage image bloat
-on the Web, and reduce it to a minimum, reduce its impact to a minimum.
-
-So we made some progress with image bloat, but we're not there just yet.
+on the Web, and reduce it to a minimum by sending devices the images they need, and not images larger than that.
 
 There's also much progress on bloat in terms of better compression
 algorithms, better image formats, etc.
 
 ---
+
+# Image Manager
+
+???
+(Moe's face as background)
+The main hurdle to adoption with responsive images is that managing all those variants is hard work. And just in case it's not obvious,
+Image Manager is *really* good at handling all that complexity for you.
+---
 background-image: url(media/bloat.jpg)
-# Brotli
+# Zopfli & Brotli
+
+???
+More on the front of bloat, new compression algorithms enable us to shrink our text files even further.
+The Zopfli and Brotli algorithms enable us to better compress text files. Zopfli is using gzip compatible file, only investing a lot of
+power in compressing them further, getting ~7% better compression on average. Brotli is a new format, supported by all modern browsers,
+which gives 20-30% better compression for text files.
+
+---
+
+# Resource Optimizer
+(Ted's face)
+
+And again, just in case you don't know, Resource Optimizer, the latest addition to Adaptive Acceleration, performs automatic Brotli & Zopflli
+compression for your static, cacheable resources. And if you prefer to serve Brotli from origin, we support that as well, and properly cache
+the different variants.
+
 ---
 background-image: url(media/bloat.jpg)
 # H2 shared dictionaries
+
+???
+We talked before about dependencies, small modules and their discovery issues.
+There's another aspect to that, as small modules tend to compress poorly. Traditionally we've bundled resources together to avoid the
+negative impact of extra requests on HTTP/1, but that's no longer needed. OTOH, bundling still provides compression benefits.
+On that front, there's a proposal I'm co-authoring to enable shared compression contexts as part of the H2 protocol, that will solve that
+issue, and enable significantly better compression for small CSS and JS files.
+
+(33 minutes)
 ---
 
 # 3rd parties
+
+???
+And now, 3rd parties. Since they have so many issues, let's break them down.
+
+
 
 ---
 
