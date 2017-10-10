@@ -22,9 +22,9 @@ background-image: url(media/fast.jpg)
 .low-right[@yoavweiss]
 ---
 
-## Faster Bytes are not Enough!!
-## Why is the web slow?
-### (and what can we do about it)
+### Faster Bytes are not Enough!!
+### Why is the web slow?
+### (& what can we do about it)
 
 <br>
 <br>
@@ -83,7 +83,7 @@ performance dominated by latency.
 
 ---
 
-# HTTP/1.1 :shrug:
+# HTTP/1.1 `¯\_(ツ)_/¯`
 ???
 Requests in HTTP/1.0 and HTTP/1.1
 were going out over multiple connections (2 connections per host for 1.1
@@ -562,6 +562,18 @@ and touch user experience on your site.
 Finally, downloading massive amounts of scripts and images can easily cause main thread contention, where the browser is mostly executing
 javascript and decodes images for third parties rather than render your content, or react to your users actions.
 
+---
+background-image: url(media/whose-line-is-it-anyway.jpg)
+
+# Whose??
+
+???
+
+But maybe the hardest part about third parties is that as a developer, you don't always know what's running on your site.
+You're adding in a Tag Manager, that's bringing in its tag friends, which bring their tag friends, and together they all have a third party
+party, all over your web site. And you have very little say in the matter.
+
+
 (21 minutes)
 ---
 
@@ -827,6 +839,8 @@ which gives 20-30% better compression for text files.
 ---
 
 # Resource Optimizer
+
+???
 (Ted's face)
 
 And again, just in case you don't know, Resource Optimizer, the latest addition to Adaptive Acceleration, performs automatic Brotli & Zopflli
@@ -850,9 +864,46 @@ issue, and enable significantly better compression for small CSS and JS files.
 # 3rd parties
 
 ???
-And now, 3rd parties. Since they have so many issues, let's break them down.
+And now, 3rd parties. A few things you can do to ease the pain of third parties
 
+---
 
+# Preconnect / Preload
+
+???
+Preconnect and preload enable you to speed up render blocking third parties
+
+---
+
+# Service Worker
+
+???
+Gives you back control over third parties. Enables you to know they are there, put SPOF protections in place, and otherwise defer or
+terminate them in ways that weren't practical before.
+
+---
+
+# Long Tasks
+
+???
+
+Another recent API that can help you be aware of the impact of third party scripts on your site's runtime is the Long Tasks API. Be sure to
+catch Nic Jansma's talk on that API on Friday morning. It's a tough slot, but totally worth your time.
+---
+
+# Script Manager
+
+???
+(Ted's face)
+
+---
+
+# Certificate frame
+
+???
+
+A new proposal called Certificate frame will enable us to avoid coalesce all Akamized third parties on the same connection as the first
+party, avoiding bandwidth contention between them (because they would all be managed as part of a single sending queue).
 
 ---
 
@@ -861,17 +912,14 @@ And now, 3rd parties. Since they have so many issues, let's break them down.
 
 ???
 
+Finally, for client-side processing, I don't have that much advice, other than the obvious "send less JS and CSS".
+There are several best practices around critical CSS where a build step or automatic processing can help, but they tend to be hard to
+configure and put in place.
+For JS, there are many build step tools that can help (for example webpack), but they are not always something you can use, depending on
+your workflow. Server-side rendering may also be applicable, but has to be carefully applied, as you need to make sure your site is not
+frozen and non-responsive until the JS comes in.
 
-
-
-Aside on shared dictionaries.
-
-
-Critical CSS build step (or automatic processing) can help, but it may
-be hard configure and get in place.
-
-Build steps can help (webpack, etc), but they're not always
-applicable...
+So, unfortunately, no Ted-face here just yet. But this is definitly an area we're putting a lot of thought into.
 
 ---
 
@@ -886,7 +934,8 @@ applicable...
 
 ---
 
-## Ion and browser work underway to solve it
+## Ion and recent browser features solve many of them.
+## Work underway to solve the rest.
 
 ---
 
