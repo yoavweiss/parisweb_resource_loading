@@ -1,0 +1,51 @@
+<svg class="diagram" width="1000" height="464.2" viewBox="0 0 1000 464.2" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink">
+<!-- Phone and servers -->
+<g transform="translate(250, 20)">
+    <g transform="scale(1.7), translate(-40, 50)">
+        <path fill="#010101" d="M64.8 0H13.5C6.1 0 0 6.1 0 13.5v105.3c0 7.4 6.1 13.5 13.5 13.5h51.3c7.4 0 13.5-6.1 13.5-13.5V13.5C78.3 6.1 72.2 0 64.8 0zM38.7 125.1c-3.6 0-6.7-3-6.7-6.7 0-3.6 3-6.7 6.7-6.7 3.8 0 6.7 3 6.7 6.7s-3 6.7-6.7 6.7zm28.8-18.5H10.8V17.5h56.7v89.1zM434.1 47H311.4c-3.4 0-6.2 2.8-6.2 6.2v26.9c0 3.4 2.8 6.2 6.2 6.2h122.8c3.4 0 6.2-2.8 6.2-6.2V53.2c-.1-3.4-2.8-6.2-6.3-6.2zm-37.8 25.6H319v-12h77.3v12zm27.8-.4c-3.1 0-5.6-2.5-5.6-5.6s2.5-5.6 5.6-5.6c3.1 0 5.6 2.5 5.6 5.6s-2.5 5.6-5.6 5.6zm10 19.8H311.4c-3.4 0-6.2 2.8-6.2 6.2v26.9c0 3.4 2.8 6.2 6.2 6.2h122.8c3.4 0 6.2-2.8 6.2-6.2V98.2c-.1-3.4-2.8-6.2-6.3-6.2zm-37.8 25.6H319v-12h77.3v12zm27.8-.4c-3.1 0-5.6-2.5-5.6-5.6 0-3.1 2.5-5.6 5.6-5.6 3.1 0 5.6 2.5 5.6 5.6 0 3.1-2.5 5.6-5.6 5.6zM434.1 1H311.4c-3.4 0-6.2 2.8-6.2 6.2v26.9c0 3.4 2.8 6.2 6.2 6.2h122.8c3.4 0 6.2-2.8 6.2-6.2V7.2c-.1-3.4-2.8-6.2-6.3-6.2zm-37.8 25.6H319v-12h77.3v12zm27.8-.4c-3.1 0-5.6-2.5-5.6-5.6s2.5-5.6 5.6-5.6c3.1 0 5.6 2.5 5.6 5.6s-2.5 5.6-5.6 5.6z"/>
+    </g>
+    <defs>
+        <g id="right" stroke="#CE561E" stroke-width="4">
+            <line x1="0" y1="0" x2="260" y2="0"></line>
+            <g stroke-width="2">
+                <line x1="240" y1="10" x2="262" y2="0"></line>
+                <line x1="240" y1="-10" x2="262" y2="0"></line>
+            </g>
+        </g>
+        <g id="left" stroke="#CE561E" stroke-width="4">
+            <line x1="0" y1="0" x2="260" y2="0"></line>
+            <g stroke-width="2">
+                <line x1="-2" y1="0" x2="20" y2="10"></line>
+                <line x1="-2" y1="0" x2="20" y2="-10"></line>
+            </g>
+        </g>
+    </defs>
+    <g transform="translate(140, 30)">
+        <text x="20" y="0" font-size="20px">GET image1.jpg</text>
+        <use y="5" xlink:href="#right" />
+        <text x="20" y="25" font-size="20px">GET image2.jpg</text>
+        <use y="30" xlink:href="#right" />
+        <text x="20" y="50" font-size="20px">image1.jpg</text>
+        <use y="55" xlink:href="#left" />
+        <text x="20" y="75" font-size="20px">image2.jpg</text>
+        <use y="80" xlink:href="#left" />
+        <text x="20" y="100" font-size="20px">GET image3.jpg</text>
+        <use y="105" xlink:href="#right" />
+        <text x="20" y="125" font-size="20px">GET image4.jpg</text>
+        <use y="130" xlink:href="#right" />
+        <text x="20" y="150" font-size="20px">image3.jpg</text>
+        <use y="155" xlink:href="#left" />
+        <text x="20" y="175" font-size="20px">image4.jpg</text>
+        <use y="180" xlink:href="#left" />
+        <text x="20" y="240" font-size="20px">...</text>
+        <text x="20" y="280" font-size="20px">GET imageN.jpg</text>
+        <use y="285" xlink:href="#right" />
+        <text x="20" y="305" font-size="20px">GET imageM.jpg</text>
+        <use y="310" xlink:href="#right" />
+        <text x="20" y="330" font-size="20px">imageN.jpg</text>
+        <use y="335" xlink:href="#left" />
+        <text x="20" y="355" font-size="20px">imageM.jpg</text>
+        <use y="360" xlink:href="#left" />
+    </g>
+</g>
+</svg>
