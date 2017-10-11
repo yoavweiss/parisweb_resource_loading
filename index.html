@@ -358,7 +358,7 @@ used. So it has to calculate the style, and cross those style with the DOM to se
 
 ## Performance issues
 
-.center.big[
+.center.huge[
 * Server side processing
 
 * Discovery
@@ -695,10 +695,12 @@ background-image: url(media/discovery.png)
 
 # Preload &gt; Push
 
+.center.huge[
 * Cross origin
 * Cache + cookies
 * Content negotiation
 * Load/error events
+]
 
 ???
 If we compare preload to push, it has multiple advantages: it can work for third party resources where H2 push is essentially meant for
@@ -742,13 +744,14 @@ But as web developers, we can try to limit that variablity and make sure
 we push and preload everything we can that's needed.
 
 ---
-background-image: url(media/discovery.png)
+class: bottom
+background-image: url(media/ted.jpg)
 
-# Adaptive Acceleration
+## Adaptive Acceleration
 
 ???
-And because Ted made me explicitly say it: preconnect, H2 push are currently available as part of Adaptive Acceleration, and automatic preload will soon also
-be included.
+And because Ted made me explicitly say it: preconnect, H2 push are currently available as part of Adaptive Acceleration, and we're looking
+into automatic preload.
 
 (Ted's face as a background)
 
@@ -819,6 +822,8 @@ There's also much progress on bloat in terms of better compression
 algorithms, better image formats, etc.
 
 ---
+class: bottom
+background-image: url(media/moe.jpg)
 
 # Image Manager
 
@@ -837,8 +842,10 @@ power in compressing them further, getting ~7% better compression on average. Br
 which gives 20-30% better compression for text files.
 
 ---
+class: bottom
+background-image: url(media/ted.jpg)
 
-# Resource Optimizer
+## Resource Optimizer
 
 ???
 (Ted's face)
@@ -890,6 +897,8 @@ terminate them in ways that weren't practical before.
 Another recent API that can help you be aware of the impact of third party scripts on your site's runtime is the Long Tasks API. Be sure to
 catch Nic Jansma's talk on that API on Friday morning. It's a tough slot, but totally worth your time.
 ---
+class: bottom
+background-image: url(media/ted.jpg)
 
 # Script Manager
 
@@ -934,8 +943,13 @@ So, unfortunately, no Ted-face here just yet. But this is definitly an area we'r
 
 ---
 
-## Ion and recent browser features solve many of them.
-## Work underway to solve the rest.
+## We can improve things!
+
+---
+class: bottom
+background-image: url(media/ted.jpg)
+
+## Ion is awesome!
 
 ---
 
