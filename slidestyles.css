@@ -128,7 +128,8 @@ table, tr, td {
     border: 2px solid black;
 }
 
-.huge p{
+.huge p,
+.huge>ul>li {
     font-size: 2em;
 }
 .big,
