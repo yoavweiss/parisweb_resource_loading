@@ -205,8 +205,13 @@ is a lot.
 .center[![](media/tcp_slow_start.png)]
 
 ???
+Once the server has the HTML ready and starts sending it down, that's when we hit slow start.
 TCP slow start is a mechanism that enables the server to gradually discover the connection's limits.
 It also limits us in the amount of data that we can initially send.
+
+Who here have heard of the 14KB rule, where all your critical resources have to fit into those first 14KB of your HTML?
+Slow start (and an initial congestion window of 10 packets) are the reason for that rule. Everything beyond those initial 14KB will take
+longer than an RTT to download, because the server is not sure it can send more than that without sending more than the network can handle.
 
 ---
 class: bright
@@ -215,7 +220,7 @@ class: bright
 
 ???
 
-Once the server actually sends the HTML down to the browser, the browser starts processing it.
+Now, when the browser start receiving the HTML, it starts processing it in a streaming fashion.
 It tokenizes the HTML, and runs it through its preloader, in order to find out ASAP which resources it needs to load.
 ---
 
@@ -316,16 +321,20 @@ class: bright
 # Bandwidth contention
 
 ???
----
+The problem of bandwidth contention happens when we have multiple resources both downloaded at the same time, but where:
+a) bandwidth is the bottleneck (which can often be the case in cellular networks)
+b) High priority content is downloaded alongside lower priority content
 
-# Congestion
+In those cases, the lower priority content is slowing down the higher priority content (by competing with it on bandwidth).
 
-???
----
+In HTTP/1.1, we have bandwidth contention by definition, and browsers somehow mitigated that by delaying the sending of low priority
+resources. In H2, it's no longer a problem between resources that are fetched on the same H2
+connection, but is still very much a problem for resources fetched over other connections.
 
-# Bloat
+XXX: example of bandwidth contention between different resources of different priorities
 
-???
+(15 minutes - 25 left)
+
 ---
 
 ## Loading slowness
@@ -340,11 +349,7 @@ class: bright
 
 * Parallelism
 
-* Congestion
-
 * Bandwidth contention
-
-* Bloat
 
 
 ???
@@ -694,78 +699,48 @@ using the `as` attribute. I'm also working on a different specification that wil
 resources, and change their default priorities.
 
 ---
+
 # Parallelism
 
 ---
+
+# HTTP2 to the rescue!
+
+---
+???
+Diagram of H2 vs. H1
+
+---
+
+# H2 priorities
+
+---
+
+# H2 doesn't fix everything
+
+## Kernel - user space divide means priority queue is hard to implement
+## TCP losses result in HOL
+## No shared compression context
+
+---
+
+# QUIC and IETF QUIC
+
+---
+
+# H2 compression dictionaries
+
+---
+
+# Web Packaging
+
+---
+
 # Contention
 
 ---
-# Congestion
----
-background-image: url(media/bloat.jpg)
-# Bloat
 
-???
-What can we do about bloat? What can we do about the fact that we're sending too much content down?
-Well, the good news here is that bloat is in our hands. We just need to send less bytes down the wire.
----
-background-image: url(media/bloat.jpg)
-# Image Compression
-
-???
-
-The first and obvious step against bloat is better image compression. That's often easier said than done.
-While the lossless aspects of image compression are obvious to automate, as they don't impact the visible quality, the lossy parts are
-harder, as you need to make sure you're compressing as much as you can without creating visible artifacts that will degrade the user
-experience and will ultimately impact conversions (plus you'd have your designers on our back).
-
-But there are multiple open source projects that you can integrate into your build process and can help you get better compression results.
----
-background-image: url(media/bloat.jpg)
-# Responsive images
-
-## `<picture>`
-## `srcset` & `sizes`
-???
-
-And then there's responsive images.
-We talked before about the fact that responsive design initially resulted in sending high resolution images to all devices.
-
-The web performance community realized that this is a huge issue, formed the Responsive Images Community
-Group, and after a long while and numerous arguments, we managed to
-convince browser vendors that we need to a way to specify multiple
-images for browsers to download, based on their device dimensions,
-design and the browser's environment.
-
-And we came up with `<picture>`, srcset and sizes, specified them and
-shipped them in browsers.
-
-That, along with Client Hints, gives us the tools to manage image bloat
-on the Web, and reduce it to a minimum by sending devices the images they need, and not images larger than that.
-
-There's also much progress on bloat in terms of better compression
-algorithms, better image formats, etc.
-
----
-background-image: url(media/bloat.jpg)
-# Zopfli & Brotli
-
-???
-More on the front of bloat, new compression algorithms enable us to shrink our text files even further.
-The Zopfli and Brotli algorithms enable us to better compress text files. Zopfli is using gzip compatible file, only investing a lot of
-power in compressing them further, getting ~7% better compression on average. Brotli is a new format, supported by all modern browsers,
-which gives 20-30% better compression for text files.
-
----
-background-image: url(media/bloat.jpg)
-# H2 shared dictionaries
-
-???
-We talked before about dependencies, small modules and their discovery issues.
-There's another aspect to that, as small modules tend to compress poorly. Traditionally we've bundled resources together to avoid the
-negative impact of extra requests on HTTP/1, but that's no longer needed. OTOH, bundling still provides compression benefits.
-On that front, there's a proposal I'm co-authoring to enable shared compression contexts as part of the H2 protocol, that will solve that
-issue, and enable significantly better compression for small CSS and JS files.
+# Connection Coalescing
 
 ---
 
@@ -775,6 +750,10 @@ issue, and enable significantly better compression for small CSS and JS files.
 
 A new proposal called Certificate frame will enable us to avoid coalesce all Akamized third parties on the same connection as the first
 party, avoiding bandwidth contention between them (because they would all be managed as part of a single sending queue).
+
+---
+
+# Origin signed resources
 
 ---
 
