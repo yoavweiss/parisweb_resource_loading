@@ -318,6 +318,16 @@ class: bright
 ???
 ---
 
+# Congestion
+
+???
+---
+
+# Bloat
+
+???
+---
+
 ## Loading slowness
 
 * Connection establishment
@@ -353,6 +363,7 @@ rid of it?
 ---
 
 # Preconnect
+## `<link rel=preconnect>`
 
 ???
 
@@ -440,16 +451,8 @@ background-image: url(media/servers.jpg)
 
 ???
 
-Historically, before the seminal web performance work by Steve Souders,
-server side processing was considered *the* problem in web performance,
-and it was what people were optimizing for. While Steve showed that
-front end performance is responsible for 80% of the time people are
-waiting for web pages, 20% is nothing to scoff at.
-So server side performance is still very much something to be concerned
-with.
-At Akamai we see median server side performance times (or TTFB between the edge server and the origin server) of ~450ms, which
-is a lot, especially if you consider the 3 seconds performance budget.
-
+Server side processing is the next hurdle to loading, mainly for the HTML, which is often dynamic, and which delivery is critical for the
+loading of everything else.
 ---
 background-image: url(media/flush.jpg)
 #Flush early
@@ -466,21 +469,6 @@ without reloading the whole thing).
 
 ---
 
-background-image: url(media/controls.jpg)
-## What can we do about it?
-
-???
-
-Are we all properly depressed yet?
-Everything is awful and slow.
-
-So, how do we solve this? What can we do about it?
-How can we make our websites fast despite all this awfulness?
-
-aside: I'll briefly go over the solutions, as explaining them in depth can take a full presentation on its own. But feel free to grab me
-later for any details you're missing. I'll also be happy to direct you to some reading material about them.
-
----
 background-image: url(media/servers.jpg)
 # Server Side processing
 
@@ -531,6 +519,33 @@ In other words it enables us to turn this bandwidth graph, into this.
 
 Another advantage of this is that it enables us to warn up the TCP connection while waiting for the HTML, which can significantly reduce the
 amount of RTTs and time it takes us to send down the HTML and the critical CSS and JS resources.
+
+---
+
+# H2 Push is not panacea
+
+???
+XXX - Jake's face
+---
+
+# Cache Digests
+???
+XXX
+---
+background-image: url(media/discovery.png)
+# Early hints
+
+???
+A recent standard also suggests to define a way for us to be able to send headers to the browser before the response is complete,
+which can enable us to send instructions to the browser to preconnect hosts or preload resources before the response is ready, which can be
+helpful to speed up blocking third parties, especially if they are lately discovered.
+---
+
+# Slow Start
+
+???
+
+XXX - add about slow start and how connection coalescing is the only solution there
 
 ---
 
@@ -596,24 +611,13 @@ so it has to download resources in order to know what other resources to downloa
 What are the solutions to that problem?
 ---
 background-image: url(media/discovery.png)
-# Preconnect
-
-## `<link rel=preconnect>`
-???
-
-A first step which can help, at least for blocking third parties is to preconnect to their host.
-That can eliminate large parts of the latency required to fetch them: DNS, TCP and TLS, or at least take these parts out of the critical
-path.
-
----
-background-image: url(media/discovery.png)
-# H2 push
+# Preconnect and H2 push
 
 ???
 
-We already discussed H2 push in the context of server side processing, but it can have a double impact here.
-H2 push can be used to push critical resources before the browser
-  discovers them and realizes that it needs them. And it can do that before the HTML arrived.
+We already discussed preconnect and H2 push in the context of slow start and server think time, but we can also think of them as helping
+discovery, by eliminating latency from the delivery of these resources, and making sure that when the browser discovers it needs them, the
+connections are ready to go, or the resources are already there in the cache.
 ---
 background-image: url(media/discovery.png)
 # Preload
@@ -673,19 +677,10 @@ if (Math.random() > 0.5) {
 Does push and preload solve all discoverability problems?
 Not really, sometimes actual JS needs to run on the client in order to
 figure out what resource the browser will need
-(show code that randomally pick either img)
 
 But as web developers, we can try to limit that variablity and make sure
 we push and preload everything we can that's needed.
 
----
-background-image: url(media/discovery.png)
-# Early hints
-
-???
-A recent standard proposal also suggests to define a way for us to be able to send headers to the browser before the response is complete,
-which can enable us to send instructions to the browser to preconnect hosts or preload resources before the response is ready, which can be
-helpful to speed up blocking third parties, especially if they are lately discovered.
 ---
 background-image: url(media/discovery.png)
 
@@ -698,7 +693,14 @@ Just a short aside: preload enables the browser to assign the right priorities t
 using the `as` attribute. I'm also working on a different specification that will enable us to define explicit priorities for certain
 resources, and change their default priorities.
 
-(29 minutes)
+---
+# Parallelism
+
+---
+# Contention
+
+---
+# Congestion
 ---
 background-image: url(media/bloat.jpg)
 # Bloat
@@ -745,16 +747,6 @@ There's also much progress on bloat in terms of better compression
 algorithms, better image formats, etc.
 
 ---
-class: bottom
-background-image: url(media/moe.jpg)
-
-# Image Manager
-
-???
-(Moe's face as background)
-The main hurdle to adoption with responsive images is that managing all those variants is hard work. And just in case it's not obvious,
-Image Manager is *really* good at handling all that complexity for you.
----
 background-image: url(media/bloat.jpg)
 # Zopfli & Brotli
 
@@ -763,19 +755,6 @@ More on the front of bloat, new compression algorithms enable us to shrink our t
 The Zopfli and Brotli algorithms enable us to better compress text files. Zopfli is using gzip compatible file, only investing a lot of
 power in compressing them further, getting ~7% better compression on average. Brotli is a new format, supported by all modern browsers,
 which gives 20-30% better compression for text files.
-
----
-class: bottom
-background-image: url(media/ted.jpg)
-
-## Resource Optimizer
-
-???
-(Ted's face)
-
-And again, just in case you don't know, Resource Optimizer, the latest addition to Adaptive Acceleration, performs automatic Brotli & Zopflli
-compression for your static, cacheable resources. And if you prefer to serve Brotli from origin, we support that as well, and properly cache
-the different variants.
 
 ---
 background-image: url(media/bloat.jpg)
@@ -788,46 +767,6 @@ negative impact of extra requests on HTTP/1, but that's no longer needed. OTOH, 
 On that front, there's a proposal I'm co-authoring to enable shared compression contexts as part of the H2 protocol, that will solve that
 issue, and enable significantly better compression for small CSS and JS files.
 
-(33 minutes)
----
-
-# 3rd parties
-
-???
-And now, 3rd parties. A few things you can do to ease the pain of third parties
-
----
-
-# Preconnect / Preload
-
-???
-Preconnect and preload enable you to speed up render blocking third parties
-
----
-
-# Service Worker
-
-???
-Gives you back control over third parties. Enables you to know they are there, put SPOF protections in place, and otherwise defer or
-terminate them in ways that weren't practical before.
-
----
-
-# Long Tasks
-
-???
-
-Another recent API that can help you be aware of the impact of third party scripts on your site's runtime is the Long Tasks API. Be sure to
-catch Nic Jansma's talk on that API on Friday morning. It's a tough slot, but totally worth your time.
----
-class: bottom
-background-image: url(media/ted.jpg)
-
-# Script Manager
-
-???
-(Ted's face)
-
 ---
 
 # Certificate frame
@@ -836,22 +775,6 @@ background-image: url(media/ted.jpg)
 
 A new proposal called Certificate frame will enable us to avoid coalesce all Akamized third parties on the same connection as the first
 party, avoiding bandwidth contention between them (because they would all be managed as part of a single sending queue).
-
----
-
-# Client-side processing
-
-
-???
-
-Finally, for client-side processing, I don't have that much advice, other than the obvious "send less JS and CSS".
-There are several best practices around critical CSS where a build step or automatic processing can help, but they tend to be hard to
-configure and put in place.
-For JS, there are many build step tools that can help (for example webpack), but they are not always something you can use, depending on
-your workflow. Server-side rendering may also be applicable, but has to be carefully applied, as you need to make sure your site is not
-frozen and non-responsive until the JS comes in.
-
-So, unfortunately, no Ted-face here just yet. But this is definitly an area we're putting a lot of thought into.
 
 ---
 
