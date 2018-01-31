@@ -17,7 +17,7 @@
 
 layout: true
 class: center, middle
-background-image: url(media/fast.jpg)
+background-image: url(media/loaded.jpg)
 
 .low-right[@yoavweiss]
 ---
@@ -121,8 +121,6 @@ And all these different resources now need to be downloaded together in order to
 deliver to our users.
 ---
 
-class: contain
-background-image: url(media/talk_graph.jpg)
 
 ???
 So today I wanted to talk about how resources are loaded the web and all the problems with that which make this process inherently slow.
@@ -141,7 +139,6 @@ Let's get started:
 
 ---
 
-background-image: url(media/talk_graph.jpg)
 # Connection Establishment
 
 ???
@@ -356,6 +353,9 @@ XXX: example of bandwidth contention between different resources of different pr
 Let's go over these problems in detail and see how we can reduce the
 pain they cause.
 
+I'm purposefully leaving out of scope here third parties, which Andy talked about as well as bloat that Una covered in her image compression
+talk.
+
 ---
 
 # Connection establishment
@@ -439,13 +439,26 @@ support from other browsers won't be too far behind.
 XXX: support in Firefox? Apple? Microsoft?
 
 ---
+
 # What's in the future?
 
-??? We mentioned a couple of disadvantages for QUIC: It is non-standard so rapidly evolving, and it's negotiation mechanism takes a long
+???
+We mentioned a couple of disadvantages for QUIC: It is non-standard so rapidly evolving, and it's negotiation mechanism takes a long
 while at the first visit, which renders its benefits mute for that case.
 
 These two problems have solutions underway:
+---
+
+# IETF QUIC
+
+???
 The IETF QUIC WG is working its way to standardizing the protocol, and plans to finish that by end of 2018.
+
+---
+
+# Alt-SVC over DNS
+
+???
 At the same time, there's an ongoing proposal for an Alt-Svc extension for DNS, that will enable servers to declare QUIC support already at
 the DNS phase, and save many precious RTTs as browsers will "speak" QUIC directly to the servers instead of trying TCP+TLS first.
 
@@ -458,6 +471,14 @@ background-image: url(media/servers.jpg)
 
 Server side processing is the next hurdle to loading, mainly for the HTML, which is often dynamic, and which delivery is critical for the
 loading of everything else.
+
+It's hard to give you generic advice on how to speed up your server side processing. You can instrument and figure out which operations take
+time, and try to speed them up, but at the end of the day, executing complex, scalable applications to create dynamic HTML pages can take
+time.
+
+It also doesn't help that the default runtime of many high level languages such as Python and Ruby is not extremely fast be default.
+
+But even if our backend times can be slow at times, that doesn't mean we can't put this waiting time to good use.
 ---
 background-image: url(media/flush.jpg)
 #Flush early
@@ -472,19 +493,6 @@ completely different 404 page vs. your 200 page), and it's not always
 trivial to "switch" pages on the user after an error has happened (and
 without reloading the whole thing).
 
----
-
-background-image: url(media/servers.jpg)
-# Server Side processing
-
-???
-It's hard to give you generic advice on how to speed up your server side processing. You can instrument and figure out which operations take
-time, and try to speed them up, but at the end of the day, executing complex, scalable applications to create dynamic HTML pages can take
-time.
-
-It also doesn't help that the default runtime of many high level languages such as Python and Ruby is not extremely fast be default.
-
-But even if our backend times can be slow at times, that doesn't mean we can't put this waiting time to good use.
 ---
 background-image: url(media/servers.jpg)
 # H2 push
@@ -531,27 +539,23 @@ amount of RTTs and time it takes us to send down the HTML and the critical CSS a
 
 ???
 XXX - Jake's face
+
+---
+
+# What's in the future?
 ---
 
 # Cache Digests
 ???
 XXX
 ---
-background-image: url(media/discovery.png)
+
 # Early hints
 
 ???
 A recent standard also suggests to define a way for us to be able to send headers to the browser before the response is complete,
 which can enable us to send instructions to the browser to preconnect hosts or preload resources before the response is ready, which can be
 helpful to speed up blocking third parties, especially if they are lately discovered.
----
-
-# Slow Start
-
-???
-
-XXX - add about slow start and how connection coalescing is the only solution there
-
 ---
 
 # Discovery
@@ -600,7 +604,7 @@ tree.
 ---
 layout: true
 class: center, middle
-background-image: url(media/fast.jpg)
+background-image: url(media/loaded.jpg)
 
 .low-right[@yoavweiss]
 ---
@@ -700,6 +704,13 @@ resources, and change their default priorities.
 
 ---
 
+# What's in the future?
+
+# Priority Hints
+
+# Early Hints
+---
+
 # Parallelism
 
 ---
@@ -735,8 +746,20 @@ Diagram of H2 vs. H1
 # Web Packaging
 
 ---
+XXXX - maybe an aside on brotli, custom dictionaries and compression API?
 
 # Contention
+
+---
+
+# Slow Start
+
+???
+
+XXX - add about slow start and how connection coalescing is the only solution there
+otherwise, 14KB.
+Emphasize that slow start is relevant for every new connection established
+
 
 ---
 
@@ -760,7 +783,7 @@ party, avoiding bandwidth contention between them (because they would all be man
 # Take-aways
 ---
 
-## Latency still dominates Web performance
+## Latency still dominates resource loading on the web
 
 ---
 
@@ -769,12 +792,6 @@ party, avoiding bandwidth contention between them (because they would all be man
 ---
 
 ## We can improve things!
-
----
-class: bottom
-background-image: url(media/ted.jpg)
-
-## Ion is awesome!
 
 ---
 
@@ -806,5 +823,7 @@ background-image: url(media/ted.jpg)
 * https://www.flickr.com/photos/stooart/542546060/ - controls
 * https://www.flickr.com/photos/medienzeitmaschine/5150471651 - IBM PC
 * https://www.flickr.com/photos/ryanlavering/5180531131/ - surprise
+* https://www.flickr.com/photos/tadsonbussey/91066374/ - loading
+* https://www.flickr.com/photos/francoiskarm/27066027503/ - loaded
 
 </textarea><script type="text/javascript" src="remark-latest.min.js"></script></body></html>
