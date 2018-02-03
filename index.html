@@ -135,11 +135,14 @@ Let's get started:
 
 ---
 
-# Slowness
+# Why is loading slow?
 
 ---
+background-image: url(media/sketches/connection.jpg)
 
-# Connection Establishment
+--
+
+# Connection establishment
 
 ???
 When we start loading a page, once the user has clicked a link or wrote down a URL,
@@ -178,6 +181,9 @@ RTT, to bring us to 2 RTTs in total for TLS, and 4 RTTs for the entire connectio
 
 
 ---
+background-image: url(media/sketches/server.jpg)
+
+--
 
 # Server side processing
 
@@ -196,13 +202,19 @@ with.
 At Akamai we see median server side performance times (or TTFB between the edge server and the origin server) of ~450ms, which
 is a lot.
 ---
+background-image: url(media/sketches/slowstart.jpg)
+
+--
 
 # Slow Start
 
+???
+Once the server has the HTML ready and starts sending it down, that's when we hit slow start.
+
+---
 .center[![](media/tcp_slow_start.png)]
 
 ???
-Once the server has the HTML ready and starts sending it down, that's when we hit slow start.
 TCP slow start is a mechanism that enables the server to gradually discover the connection's limits.
 It also limits us in the amount of data that we can initially send.
 
@@ -211,24 +223,25 @@ Slow start (and an initial congestion window of 10 packets) are the reason for t
 longer than an RTT to download, because the server is not sure it can send more than that without sending more than the network can handle.
 
 ---
+background-image: url(media/sketches/discovery.jpg)
+
+--
 class: bright
 # Discovery
+
+---
 ![](media/tokenization.svg)
 
 ???
 
-Now, when the browser start receiving the HTML, it starts processing it in a streaming fashion.
-It tokenizes the HTML, and runs it through its preloader, in order to find out ASAP which resources it needs to load.
+Now, when the browser start receiving the HTML, it starts processing it , in order to find out ASAP which resources it needs to load.
+It tokenizes the HTML in a streaming fashion, and runs it through its preloader to find all the resources that are based in the HTML.
+
+But not all resources are in the HTML and can be discovered by the preload scanner. Some resources are only discovered after creating the
+DOM tree, or after calculating styles or after executing scripts.
+
 ---
 
-#Resource loading
-
-???
-
-That's because a web page is built out of multiple different file types: HTML, CSS, JS, fonts, images and  other media formats.
-These resources are discovered by the preload scanner, by calculating style and by executing JS.
-And the browser needs to discover those resources ASAP, because some of them are critical to render the page.
----
 ![](media/critical_rendering_path.png)
 
 ???
@@ -284,6 +297,9 @@ Fonts were later added to the mix, and fonts are even more complicated. As they'
 used. So it has to calculate the style, and cross those style with the DOM to see if the resource is really needed.
 
 ---
+background-image: url(media/sketches/parallelism.jpg)
+
+--
 
 # Parallelism
 
@@ -314,6 +330,9 @@ class: bright
 ???
 
 ---
+background-image: url(media/sketches/contention.jpg)
+
+--
 
 # Bandwidth contention
 
@@ -329,6 +348,24 @@ resources. In H2, it's no longer a problem between resources that are fetched on
 connection, but is still very much a problem for resources fetched over other connections.
 
 XXX: example of bandwidth contention between different resources of different priorities
+
+---
+background-image: url(media/sketches/bloat.jpg)
+
+???
+
+And finally, the seventh deadly sin of resource loading.
+
+--
+
+# Bloat
+
+???
+
+The bigger your resources, the longer it would take for them to download, the more vulnerable they will be to bad network events along the
+way.
+So resource size certainly still matters.
+
 
 (15 minutes - 25 left)
 
@@ -348,17 +385,22 @@ XXX: example of bandwidth contention between different resources of different pr
 
 * Bandwidth contention
 
+* Bloat
+
 
 ???
 Let's go over these problems in detail and see how we can reduce the
 pain they cause.
 
-I'm purposefully leaving out of scope here third parties, which Andy talked about as well as bloat that Una covered in her image compression
-talk.
+I'm purposefully leaving out of scope here third parties, which Andy covered in his talk.
 
 ---
+layout: true
+class: center, middle
+background-image: url(media/sketches/connection.jpg)
 
-# Connection establishment
+.low-right.dark[@yoavweiss]
+---
 
 ???
 
@@ -463,7 +505,12 @@ At the same time, there's an ongoing proposal for an Alt-Svc extension for DNS, 
 the DNS phase, and save many precious RTTs as browsers will "speak" QUIC directly to the servers instead of trying TCP+TLS first.
 
 ---
-background-image: url(media/servers.jpg)
+layout: true
+class: center, middle
+background-image: url(media/sketches/server.jpg)
+
+.low-right.dark[@yoavweiss]
+---
 
 # Server side processing
 
@@ -494,7 +541,7 @@ trivial to "switch" pages on the user after an error has happened (and
 without reloading the whole thing).
 
 ---
-background-image: url(media/servers.jpg)
+
 # H2 push
 
 ???
@@ -534,11 +581,9 @@ Another advantage of this is that it enables us to warn up the TCP connection wh
 amount of RTTs and time it takes us to send down the HTML and the critical CSS and JS resources.
 
 ---
-
-# H2 Push is not panacea
+background-image: url(media/h2_push_tough.png)
 
 ???
-XXX - Jake's face
 
 ---
 
@@ -547,7 +592,13 @@ XXX - Jake's face
 
 # Cache Digests
 ???
-XXX
+
+One of the main complaints about H2 push, beyond bugs in various implementations is that there's no standard way for the server to know
+what's in the browser's cache, and therefore, no way to not push resources that are already there.
+
+Cache Digests is a new proposal that will enable a browser to give a condensed list to the server, letting it know of everything it has in
+its cache. The server can then know which resources it doesn't need to push, without jumping through hoops and trying to guess that info.
+
 ---
 
 # Early hints
@@ -557,9 +608,16 @@ A recent standard also suggests to define a way for us to be able to send header
 which can enable us to send instructions to the browser to preconnect hosts or preload resources before the response is ready, which can be
 helpful to speed up blocking third parties, especially if they are lately discovered.
 ---
+layout: true
+class: center, middle
+background-image: url(media/sketches/discovery.jpg)
 
+.low-right.dark[@yoavweiss]
+---
+
+.up[
 # Discovery
-![](media/discovery.png)
+]
 
 ???
 Because of the way browsers work, because the browser has to download
@@ -576,7 +634,10 @@ resource download can start.
 ---
 
 background-image: url(media/dependency_tree.jpeg)
+
+.down[
 ## Dependencies!
+]
 
 ???
 And this creates a dependency tree that's deep and contains many nodes,
@@ -602,33 +663,25 @@ make it harder for the browser, adding another layer to that dependency
 tree.
 
 ---
-layout: true
-class: center, middle
-background-image: url(media/loaded.jpg)
-
-.low-right[@yoavweiss]
----
-
-# Discovery
 ![](media/discovery.png)
 
 ???
 
-We've seen earlier that discovery is a real issue. The browser cannot download the resources it doesn't know about,
-so it has to download resources in order to know what other resources to download, making the whole process highly dependent on latency.
+And you can see that the bandwidth graph for that particular site has a lot of holes in it,
+during which the browser wasn't downloading anything.
 
-What are the solutions to that problem?
+OK, so this is a real issue. What are the solutions to that problem?
 ---
-background-image: url(media/discovery.png)
+
 # Preconnect and H2 push
 
 ???
 
-We already discussed preconnect and H2 push in the context of slow start and server think time, but we can also think of them as helping
+We already discussed preconnect and H2 push in the context of connection establishment and server think time, but we can also think of them as helping
 discovery, by eliminating latency from the delivery of these resources, and making sure that when the browser discovers it needs them, the
 connections are ready to go, or the resources are already there in the cache.
 ---
-background-image: url(media/discovery.png)
+
 # Preload
 
 ## `<link rel=preload>`
@@ -639,7 +692,6 @@ resource, without defining the exact point where the resource would be used. So,
 "flatten" the dependency tree by preloading late-discovered resources ahead of time.
 
 ---
-background-image: url(media/discovery.png)
 
 # Preload &gt; Push
 
@@ -658,7 +710,6 @@ supprot them, using `Accept` headers. On top of that, it has load and error even
 using preload.
 
 ---
-background-image: url(media/discovery.png)
 
 # Preload &lt; Push
 
@@ -669,7 +720,6 @@ What's push biggest advantage? The one we've seen before: it can be used to "fil
 the HTML, resulting in a significant boost to the time the user first sees content on the screen.
 
 ---
-background-image: url(media/discovery.png)
 
 .left[
 ```javascript
@@ -691,7 +741,6 @@ But as web developers, we can try to limit that variablity and make sure
 we push and preload everything we can that's needed.
 
 ---
-background-image: url(media/discovery.png)
 
 # Priorities
 
@@ -706,16 +755,37 @@ resources, and change their default priorities.
 
 # What's in the future?
 
+---
+
 # Priority Hints
 
-# Early Hints
+???
+
+We talked about resource priorities and how the browser determines them based on heuristics such as the resource type and location in the
+document. Those heuristics work great most of the time, but sometimes they miss, and exagerate either giving a resource too high of a
+priority or too low one. Priority Hints which is still very much a work in progress, will enable developers to define the priorities of
+certain resources, and help the browser do the right thing.
+
+---
+layout: true
+class: center, middle
+background-image: url(media/sketches/parallelism.jpg)
+
+.low-right.dark[@yoavweiss]
 ---
 
 # Parallelism
 
+???
+
+Now parallelism. We talked about the perils of HTTP/1.1 and how each connection there could only send a single request at a time.
+
 ---
 
 # HTTP2 to the rescue!
+
+???
+Well, H2 solves that problem.
 
 ---
 ???
@@ -729,11 +799,14 @@ Diagram of H2 vs. H1
 
 # H2 doesn't fix everything
 
+???
+
 ## Kernel - user space divide means priority queue is hard to implement
 ## TCP losses result in HOL
 ## No shared compression context
 
 ---
+
 
 # QUIC and IETF QUIC
 
@@ -746,13 +819,16 @@ Diagram of H2 vs. H1
 # Web Packaging
 
 ---
-XXXX - maybe an aside on brotli, custom dictionaries and compression API?
+layout: true
+class: center, middle
+background-image: url(media/sketches/slowstart_contention.jpg)
 
-# Contention
-
+.low-right.dark[@yoavweiss]
 ---
+.up[
+## Slow Start & Contention
+]
 
-# Slow Start
 
 ???
 
@@ -763,11 +839,15 @@ Emphasize that slow start is relevant for every new connection established
 
 ---
 
+.up[
 # Connection Coalescing
+]
 
 ---
 
+.up[
 # Certificate frame
+]
 
 ???
 
@@ -776,8 +856,30 @@ party, avoiding bandwidth contention between them (because they would all be man
 
 ---
 
+.up[
 # Origin signed resources
+]
 
+???
+
+---
+layout: true
+class: center, middle
+background-image: url(media/sketches/bloat.jpg)
+
+.low-right.dark[@yoavweiss]
+---
+
+# Bloat
+
+---
+# Brotli
+
+---
+# Custom dictionaries
+
+---
+# Compression API
 ---
 
 # Take-aways
@@ -825,5 +927,6 @@ party, avoiding bandwidth contention between them (because they would all be man
 * https://www.flickr.com/photos/ryanlavering/5180531131/ - surprise
 * https://www.flickr.com/photos/tadsonbussey/91066374/ - loading
 * https://www.flickr.com/photos/francoiskarm/27066027503/ - loaded
+* https://www.flickr.com/photos/soldiersmediacenter/8682496973/ - plane in plane
 
 </textarea><script type="text/javascript" src="remark-latest.min.js"></script></body></html>
