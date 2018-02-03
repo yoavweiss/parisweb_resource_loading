@@ -607,6 +607,8 @@ its cache. The server can then know which resources it doesn't need to push, wit
 A recent standard also suggests to define a way for us to be able to send headers to the browser before the response is complete,
 which can enable us to send instructions to the browser to preconnect hosts or preload resources before the response is ready, which can be
 helpful to speed up blocking third parties, especially if they are lately discovered.
+
+(23 minutes, 17 left)
 ---
 layout: true
 class: center, middle
@@ -766,6 +768,8 @@ document. Those heuristics work great most of the time, but sometimes they miss,
 priority or too low one. Priority Hints which is still very much a work in progress, will enable developers to define the priorities of
 certain resources, and help the browser do the right thing.
 
+(29 minutes, 11 left)
+
 ---
 layout: true
 class: center, middle
@@ -786,6 +790,9 @@ Now parallelism. We talked about the perils of HTTP/1.1 and how each connection 
 
 ???
 Well, H2 solves that problem.
+With H2 you can send multiple streams (each one corresponding to a request-response pair) on a single connection.
+So you can send a very large number of requests in parallel, and have the server serve you the one that is ready.
+That's a huge difference from the way connection handling was done in H1.
 
 ---
 ???
@@ -795,29 +802,66 @@ Diagram of H2 vs. H1
 
 # H2 priorities
 
+???
+
+Since H2 changes many things from H1, it also had to rethink priorities. Before H2 prioritization was simply done by not sending certain
+requests. When H2 came around, it added a prioritization scheme, so that the browser sends all the requests to the server, and the server
+orders the responses based on their priorities.
+
+That breaks when you have many H2 servers, when you're working off of many domains, as the result of that is contention. each server sends
+back the responses that matter the most to the server, but if their most important resource is a low-priority one, it will contend with high
+priority resources from a different server.
+
 ---
 
 # H2 doesn't fix everything
 
 ???
 
-## Kernel - user space divide means priority queue is hard to implement
-## TCP losses result in HOL
-## No shared compression context
+And there are multiple problems with the move to H2. Because the priority queues are managed in user space, it's hard for the server to be
+very reactive to priority changes, which often leads to low-priority resources sent before high-priority ones.
 
+Another problem is TCP losses. Since we use a single TCP connection and TCP is a reliable protocol, any loss means that all H2 streams now
+have to wait for that TCP pakcet to get retransmitted. That's a reincarnation of the Head-of-line blocking problem, in a different way.
+
+Finally, since there's no shared compression context between resources - we cannot compress multiple files together as if they were one - it
+means that it's still beneficial to bundle resources together, even when H2 is around.
+
+---
+
+# What's in the future?
 ---
 
 
 # QUIC and IETF QUIC
 
+???
+
+One thing we already discussed and that is planned to solve these issues is QUIC and its standard friend IETF QUIC.
+Moving the entire stack to user-space would mean that implementations would have tighter control over what they are sending and when they
+are sending it.
+
+Also, the QUIC protocol handles packet losses differently, meaning that a lost packet will only impact the resources that must be impacted
+(because they wait for the data), but other resources can continue to be read despite it. No more Head-of-line!
+
 ---
 
 # H2 compression dictionaries
 
+???
+
+There is also a current proposal for creating H2 level compression that will be able to compress multiple resources as if they were a single
+resource. There are currently some security hurdles to making that a reality.
 ---
 
 # Web Packaging
 
+
+???
+Another alternative to bundling is better bundling!
+The Web Packaging proposal will enable to have a file format that bundles multiple resources together (so they can be compressed together)
+while at the same time enable to read and process each one of them individually. Since JS/CSS processing must be done on an entire file,
+that would mean that processing can happen in parallel to downloading instead of happening only once the full file is downloaded.
 ---
 layout: true
 class: center, middle
@@ -873,12 +917,15 @@ background-image: url(media/sketches/bloat.jpg)
 # Bloat
 
 ---
+
 # Brotli
 
 ---
+
 # Custom dictionaries
 
 ---
+
 # Compression API
 ---
 
@@ -928,5 +975,11 @@ background-image: url(media/sketches/bloat.jpg)
 * https://www.flickr.com/photos/tadsonbussey/91066374/ - loading
 * https://www.flickr.com/photos/francoiskarm/27066027503/ - loaded
 * https://www.flickr.com/photos/soldiersmediacenter/8682496973/ - plane in plane
+
+???
+TODO:
+* Replace parallelism with queueing
+* Future images, "past present future image", summary image, etc
+* 
 
 </textarea><script type="text/javascript" src="remark-latest.min.js"></script></body></html>
