@@ -46,7 +46,20 @@ img { /* common CSS for fluid rescaling, but respecting the image's actual pixel
 .center>ul{
     padding-left: 200px;
 }
-
+.float-left {
+    float: left;
+}
+/*
+.remark-slide {
+    display: grid;
+    grid-template-columns: 25% 25% 25%;
+    grid-template-rows: 25% 25% 25%;
+}
+.header1 {
+    grid-column-start: 1;
+    grid-row-start:1;
+}
+*/
 
 /* Base
 -------------------------------------------------- */
@@ -76,8 +89,6 @@ body {
     background-position: center center !important;
     background-size: 100% auto !important; /* override remark.js's Javascript-based image auto-scaling */
     background-size: cover;
-    //color: #FF9833;
-    //color: #FFCC99;
     color: hsl(30, 100%, 93%);
     font-size: 2em;
     padding-left: 1em;
@@ -96,11 +107,37 @@ body {
 .large>img {
     width: 50%;
 }
+.absolute-up {
+    position: absolute;
+    top: 50px;
+}
+.absolute-down {
+    position: absolute;
+    top: 450px;
+    left: 100px;
+}
+.absolute-bottom {
+    position: absolute;
+    bottom: 50px;
+    left: 100px;
+}
+.absolute-bottom-left {
+    position: absolute;
+    bottom: 20px;
+    left: 20px;
+}
+.bg-down {
+    background-position: top 90px right 0px !important;
+
+}
 .up {
     margin-top: -300px;
 }
 .down {
     margin-top: 300px;
+}
+.really-down {
+    margin-top: 540px;
 }
 
 .remark-slide-content h1,
@@ -111,6 +148,8 @@ body {
 .remark-slide-content p,
 table {
     background-color: rgba(128, 128, 128, 0.9);
+    -webkit-box-decoration-break: clone;
+    display: inline;
 }
 .remark-slide-content>div>ul ,
 .remark-slide-content>div li,
@@ -122,6 +161,7 @@ table {
 .remark-slide-content.bright p,
 .remark-slide-content.bright div{
     background-color: rgba(196, 196, 196, 0.9);
+    -webkit-box-decoration-break: clone;
 }
 
 table {
@@ -135,9 +175,13 @@ table, tr, td {
 .huge>ul>li {
     font-size: 2em;
 }
+div.huge {
+    font-size: 5rem;
+}
+
 .big,
 .big code{
-    font-size: 1.4em;
+    font-size: 2em;
     font-weight: bold;
 }
 
@@ -372,6 +416,14 @@ h3 .remark-inline-code {
     position: absolute;
     font-size: 0.415em;
 }
+.remark-slide-content .no-bg {
+    background-color: rgba(255,255,255,0);
+    color: hsl(30, 100%, 40%);
+    display: block;
+}
+div.block{
+    display: block;
+}
 
 .footnote {
     left: 20px;
@@ -402,4 +454,19 @@ h3 .remark-inline-code {
 
 .dark {
     color: #111;
+}
+div.remark-slide-content div.bullets li{
+    background-color: rgba(128, 128, 128, 0.9);
+    font-size: 2em;
+    padding-left: 150px;
+}
+div.remark-slide-content div.bullets.small li{
+    font-size: 1.75rem;
+    padding-left: 10px;
+}
+.code-size {
+    font-size: 1.5rem;
+}
+.wide-img img{
+    width: 500px;
 }
