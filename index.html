@@ -65,8 +65,7 @@ background-image: url(media/surprise.jpg)
 But, we soon noticed something odd. Even with those awful
 speeds, a 2x reduction in image sizes did not give us similar
 performance improvements, unless they were deployed at the same time as
-the SPDY-like client-server protocol (which could only be deployed for
-users that actively installed the client, which was very few of them).
+the SPDY-like client-server protocol (which couldn't be deployed everywhere).
 At first we were baffled by this. If we’re cutting down the
 bytes we’re sending down by a factor of 2, why aren’t we seeing 2x
 performance improvements???
@@ -106,9 +105,10 @@ old...
 ???
 We have significantly better networks, we have improved image formats, and we have significantly faster
 computers.
-Latency of cellular networks have decreased significantly (even when physical latency because you're fetching something from the other end
-of the globe)
 But we also have slower computers (pull out phone)
+
+Latency of cellular networks have decreased significantly, but speed of light hasn't changed. It still takes a few hundreds of milliseconds
+to send light beams from one end of the world to the next.
 
 ---
 ![](media/js_transfer_size.png)
@@ -118,10 +118,12 @@ But we also have slower computers (pull out phone)
 And content on the web has evolved significantly over the last 20 years.
 From simple text sites with images and an occasional JS based form
 validation, it turned into a full fledged application development
-platform, and one where you *download your entire app every time you
+platform, and one where you (at least by default) *download your entire app every time you
 want to use it*.
 
 ---
+
+# Why so different?
 ???
 
 And on that front, there's also a fundenmental difference between the web and previous internet protocols that preceded it.
@@ -134,12 +136,22 @@ And all these different resources now need to be downloaded together in order to
 deliver to our users.
 ---
 
+# Outline
+
+.block[
+* Problems
+* Today's Solutions
+* Tomorrow's
+]
+
 
 ???
 So today I wanted to talk about how resources are loaded the web and all the problems with that which make this process inherently slow.
+So I want to talk about connection establishment, server side delays, slow start, resource discovery, queueing, bandwidth contention and bloat.
 Then I want to go over a few of today's solutions to these problems. These solutions are significantly better than what we had in the good
-old days of HTTP/1.1 and 33kbps bandwidth.
-But they are not perfect. So I want to finish the tour by talking about tomorrow's solutions - all the things that are currently in the
+old days of HTTP/1.1 and 33kbps bandwidth. So as part of that I want to talk about H2, H2 push, preload, preconnect.
+
+But all these solutions are not yet perfect. So I want to finish the tour by talking about tomorrow's solutions - all the things that are currently in the
 works to improve resource loading on the web, and solve it once and for all (I hope).
 
 Let's get started:
@@ -152,6 +164,9 @@ Let's get started:
 
 ---
 background-image: url(media/sketches/handshake.jpg)
+
+???
+Problem #1
 
 --
 
@@ -205,6 +220,8 @@ RTT, to bring us to 2 RTTs in total for TLS, and 4 RTTs for the entire connectio
 ---
 background-image: url(media/sketches/server.jpg)
 
+???
+Problem #2
 --
 
 # Server side processing
@@ -226,6 +243,8 @@ is a lot.
 ---
 background-image: url(media/sketches/slowstart.jpg)
 
+???
+Problem #3
 --
 
 .up[
@@ -240,6 +259,8 @@ background-image: url(media/sketches/slowstart.jpg)
 .center[![](media/tcp_slow_start.png)]
 
 ???
+When the server starts sending data to the user, it doesn't know how much bandwidth it will have for the purpose. It can't be sure what
+amount of data will overwhelm the network and cause congestion, which is a bad bad thing.
 TCP slow start is a mechanism that enables the server to gradually discover the connection's limits.
 It also limits us in the amount of data that we can initially send.
 
@@ -247,12 +268,15 @@ Who here have heard of the 14KB rule, where all your critical resources have to 
 Slow start (and an initial congestion window of 10 packets) are the reason for that rule. Everything beyond those initial 14KB will take
 longer than an RTT to download, because the server is not sure it can send more than that without sending more than the network can handle.
 
+(10 minutes - 30 left)
 ---
 background-image: url(media/sketches/discovery.jpg)
 
+???
+Problem #4
 --
 class: bright
-.up[
+.block.up[
 # Discovery
 ]
 
@@ -335,29 +359,31 @@ background-image: url(media/sketches/discovery.jpg)
 
 Which then can load even more resources
 
-
-CSS background images are declared in CSS, so discoverable only when the browser calculates the style.
-Fonts were later added to the mix, and fonts are even more complicated. As they're only downloaded when the browser knows that they will be
-used. So it has to calculate the style, and cross those style with the DOM to see if the resource is really needed.
-
 ---
 background-image: url(media/sketches/q.jpg)
+
+???
+problem #5
 
 --
 
 # Queueing
 
+???
+
+Those of you who travel often are probably familiar with that particular scene. A security line where the person at the top of line just now
+realized that they have to take out their laptop, all liquids, etc and is stalling well-prepared passangers behind them?
+
+Well, that's a real-life representation of
 ---
 background-image: url(media/sketches/q.jpg)
 
 # HTTP/1.1 `¯\_(ツ)_/¯`
 ???
-Requests in HTTP/1.0 and HTTP/1.1
-were going out over multiple connections (2 connections per host for 1.1
-at the time), but each connection could handle a single request at a
-time, which meant that if you have to bring in 50 images to the page, it
-would take you at a minimum 25 RTTs (even if all your images fit in a
-single packet), or 17.5 seconds!!
+Requests in HTTP/1.1
+are going out over multiple connections (so you have multiple queues, often 2 at the day),
+but each connection could handle a single request at a
+time.
 ---
 background-image: url(media/sketches/q.jpg)
 class: bright
@@ -383,12 +409,18 @@ class: bright
 
 ???
 
+That takes many RTTs and make our resource download latency bound.
+Later on, browser added more connections, but that's the equivalent of opening more security stations. It's better, but doesn't solve the
+"head of line" blocking issue.
+
 ---
 background-image: url(media/sketches/contention.jpg)
 
+???
+Problem #6
 --
 
-.up[
+.block.up[
 # Contention
 ]
 
@@ -400,10 +432,11 @@ b) High priority content is downloaded alongside lower priority content
 In those cases, the lower priority content is slowing down the higher priority content (by competing with it on bandwidth).
 
 In HTTP/1.1, we have bandwidth contention by definition, and browsers somehow mitigated that by delaying the sending of low priority
-resources. In H2, it's no longer a problem between resources that are fetched on the same H2
-connection, but is still very much a problem for resources fetched over other connections.
+resources. 
 
-XXX: example of bandwidth contention between different resources of different priorities
+But even in H2, where everything is downloaded on a single connection, contention is still there. It's no longer a problem between resources that are fetched on the same H2
+connection, but is still very much a problem for resources fetched over other connections. So if I have a site that includes resources from
+multiple domains, contention is still very much an issue.
 
 ---
 background-image: url(media/sketches/bloat.jpg)
@@ -414,7 +447,7 @@ And finally, the seventh deadly sin of resource loading.
 
 --
 
-.up[
+.block.up[
 # Bloat
 ]
 
@@ -441,124 +474,154 @@ So resource size certainly still matters.
 
 
 ???
+So we have (go over the problems)
+<br>
 Let's go over these problems in detail and see how we can reduce the
-pain they cause.
+pain they cause. I'll go over that list, but not necessarily in that order, trying to get the most actionable advice in first.
 
 I'm purposefully leaving out of scope here third parties, which Andy covered in his talk.
 
 ---
 layout: true
 class: center, middle
-background-image: url(media/sketches/handshake.jpg)
+background-image: url(media/sketches/q.jpg)
 
 .low-right.no-bg[@yoavweiss]
 ---
 
+# Queueing
+
 ???
 
-So we've seen that connection establishment is something that takes a large number of RTTs and is inherently latency bound. How can we get
-rid of it?
+So let's start by talking about queueing. We talked about the perils of HTTP/1.1 and how each connection there could only send a single request at a time.
 
 ---
 
-# Preconnect
-<br>
-.code-size[
-### `<link rel=preconnect>`
-]
+# HTTP2 to the rescue!
 
 ???
+Well, H2 solves that problem.
+With H2 you can send multiple streams (each one corresponding to a request-response pair) on a single connection.
+So you can send a very large number of requests in parallel, and have the server serve you the one that is ready.
+That's a huge difference from the way connection handling was done in H1.
 
-One potential answer, at least for everything other than the navigation request, is preconnect.
-You can use `<link rel=preconncet>` hints in either your markup or your HTML in order to make sure the browser connects ahead of time to
-every resource that is a potential bottleneck and which lives on a host different from the main host.
+If we go back to the airport security line analogy: H2 is like the same security line in an airport that has those parallel stations, where
+a large number of people can all prepare their luggage for inspection, and whoever's ready can go first.
+I tried to google for a photo to demonstrate that, but after a while realized that googling "airport security" images may seem suspicious...
+So no photo for you :)
 
-XXX: Add an example of such requests?
+Note that H2 doesn't magically fix everything not does it download all the resources in parallel.
+If we are bound by the network's bandwidth, then it's still that bandwidth that will limit us.
+But it enables us to let the server know about all the resources, and letting it efficiently fill the bandwidth pipe with them.
+
 ---
-
-# Connection coalescing
-
 ???
-Another potential answer for those kind of requests is to use connection coalescing to do the work for you.
-The HTTP/2 protocol defines that all the hostnames that are covered by a single certificate are to be coalesced together, given that they
-translate to the same IP.
+Diagram of H2 vs. H1
 
-So, if you serve content from multiple domains that you own, your performance will likely benefit significantly from making sure that all
-these hosts are convered by the same certificate (so mentioned in the certificate's Server Alternate Name extension). You also have to make
-sure that all these hosts translate to the same IP. Then you bypass most of the connection establishment phase, and just reuse the old
-connection.
-
-Why did I say most? Because DNS is still required, in order to *know* that these hosts all translate to the same IP, and to provide some
-safety guarantees to the feature.
+Here we can see the difference between H1 and H2, where H2 can simply send all the requests up and get the response down, making the
+resource download process bounded by the bandwidth, rather than the latency.
 
 ---
 
-# QUIC
+# H2 priorities
 
 ???
 
-Another approach is to abandon protocols that require a connection establishment all together!
-There are few options there, but the most radical (and well-known one) is QUIC, where the protocol "remembers" the old connection between
-the browser and the server, and reuses the exchanged keys in future connections. QUIC is a protocol that replaces TCP and TLS completely and
-as such only has a single RTT handshake the first time a user hits it, and a 0-RTT handshake the next time around. 0-RTT means that the
-client can immediately start sending a request to the server, and the server uses information stored in those packets from the previous
-connection in order to establish the new one immediately.
+Since H2 changes many things from H1, it also had to rethink priorities. In H1 prioritization is simply done by not sending certain
+requests. When H2 came around, it added a prioritization scheme, so that the browser sends all the requests to the server, and the server
+orders the responses based on their priorities.
 
-One major problem with that today is that since QUIC is a completely different protocol, browsers don't know which server supports it, so
-they rely on openning a regular TCP+TLS connection, send a request, and get an `Alt-Svc` response which tells them the server supports this
-new protocol.
-So we pay all those extra RTTs today on the initial connection. That's fine if you're Google and most of your users are repeat visits. It's
-less fine if you have many first visitors on your site.
-
-From a deployment perspective, Google's QUIC is currently a non-standard protocol, which is fast evolving and only supported by Chromium
-based browsers.
 
 ---
 
-# TCP Fast Open + TLS 1.3
+# H2 doesn't fix everything
 
 ???
 
-We've seen QUIC, which is a totally new protocol. A more conservative options to get rid of the connection establishment RTTs for repeat
-visitors is using TCP Fast Open and TLS/1.3
+While H2 is significantly better than H1, it's not quite perfect.
+---
 
-These extensions to the existing protocols enable a similar option that makes sure that for repeat visits, the server can recreate the
-connection based on past info, and can save precious RTTs in that case.
+# Priority responsiveness
 
-They are, in a sense simpler to deploy and standard. At the same time, there are some networks which react badly to TFO usage and penalize
-users which try to use it (and they misunderstand the packets and consider them a security threat :/).
+???
+Because the priority queues are managed in user space, it's hard for the server to be
+very reactive to priority changes, which often leads to low-priority resources sent before high-priority ones.
 
-Supporting browsers and network stacks (mostly Apple nowadays) have put in place various mitigations to prevent that from happening often.
+---
 
-TLS/1.3 support is starting to role out in browsers. Chrome will start supporting it starting from version 65 (mid March). I'm guessing
-support from other browsers won't be too far behind.
+# Packet loss HOL
 
-XXX: support in Firefox? Apple? Microsoft?
+???
+Another problem is TCP losses. Since we use a single TCP connection and TCP is a reliable protocol, any loss means that all H2 streams now
+have to wait for that TCP pakcet to get retransmitted. That's a reincarnation of the Head-of-line blocking problem, in a different way.
 
+---
+
+# X-resource compression
+
+???
+Finally, since there's no shared compression context between resources - we cannot compress multiple files together as if they were one - it
+means that it's still beneficial to bundle resources together, even when H2 is around.
+
+---
+
+# Bandwidth Contention
+
+???
+
+Other than that, H2 doesn't solve the problem of contention, despite the initial promise. It significantly relieves it for resources that
+are on the same host (at least to a large degree), but it doesn't solve it entirely, because web pages today are often composed of many
+hosts, in part due to sharding, and in part because of third party resources. Each one of those hosts runs its own queue, so resources on
+one can contend on bandwidth with resources on another.
+
+That means that if we're downloading a high-priotity resource from one host and a low-priority resource from another, these two will contend
+and the high-priority resource will end up being slower than it would have been, had the low-priority resource never existed.
+
+We'll later see what how we can relieve contention with existing H2 features, and how we can resolve it further.
 ---
 
 # What's in the future?
-
-???
-We mentioned a couple of disadvantages for QUIC: It is non-standard so rapidly evolving, and it's negotiation mechanism takes a long
-while at the first visit, which renders its benefits mute for that case.
-
-These two problems have solutions underway:
 ---
 
-# IETF QUIC
+
+# QUIC and IETF QUIC
 
 ???
-The IETF QUIC WG is working its way to standardizing the protocol, and plans to finish that by end of 2018.
+
+The planned way to resolve some of the issues we mentioned is to abandon the current stack altogether and build a new stack.
+For that purpose, Google has been working on the QUIC protocol.
+The protocol is moving the entire stack to user-space so implementations would have tighter control over what they are sending and when they
+are sending it - which will solve the priority responsiveness problems H2 has.
+
+Also, the QUIC protocol handles packet losses differently, meaning that a lost packet will only impact the resources that must be impacted
+(because they wait for the data), but other resources can continue to be read despite it. No more Head-of-line!
+
+You may argue that I shouldn't put QUIC in the "future" bit, because it's already shipped in Chrome and we can use it now.
+That's partially true, because you can. But deploying QUIC, unless you're a CDN that can keep up with the 6 weeks cadence of protocol
+changes, is not practical for folks to do on their own today.
+
+Having a standard, stable stack will enable people to install QUIC on their hosts.
+To that end, the IETF QUIC WG is working its way to standardizing the protocol, and plans to finish that by end of 2018.
 
 ---
 
-# Alt-SVC over DNS
+# H2 compression dictionaries
 
 ???
-At the same time, there's an ongoing proposal for an Alt-Svc extension for DNS, that will enable servers to declare QUIC support already at
-the DNS phase, and save many precious RTTs as browsers will "speak" QUIC directly to the servers instead of trying TCP+TLS first.
 
+As far as the cross-resource compression problem goes:
+There is also a current proposal for creating H2 level compression that will be able to compress multiple resources as if they were a single
+resource. There are currently some security hurdles to making that a reality.
+---
+
+# Web Packaging
+
+
+???
+Another alternative to the compression issues and bundling is better bundling!
+The Web Packaging proposal will enable to have a file format that bundles multiple resources together (so they can be compressed together)
+while at the same time enable to read and process each one of them individually. Since JS/CSS processing must be done on an entire file,
+that would mean that processing can happen in parallel to downloading instead of happening only once the full file is downloaded.
 ---
 layout: true
 class: center, middle
@@ -594,6 +657,8 @@ can fail, they can impact your entire document (e.g. respond with a
 completely different 404 page vs. your 200 page), and it's not always
 trivial to "switch" pages on the user after an error has happened (and
 without reloading the whole thing).
+
+So what can we do?
 
 ---
 
@@ -645,6 +710,8 @@ background-image: url(media/h2_push_tough.png)
 
 ???
 
+At the same time, H2 push is not necessarily easy to use. There are many still many gotchas, which makes it tricky to get right.
+
 ---
 
 # What's in the future?
@@ -668,7 +735,6 @@ A recent standard also suggests to define a way for us to be able to send header
 which can enable us to send instructions to the browser to preconnect hosts or preload resources before the response is ready, which can be
 helpful to speed up blocking third parties, especially if they are lately discovered.
 
-(23 minutes, 17 left)
 ---
 layout: true
 class: center, middle
@@ -735,11 +801,11 @@ during which the browser wasn't downloading anything.
 OK, so this is a real issue. What are the solutions to that problem?
 ---
 
-# Preconnect and H2 push
+# H2 push
 
 ???
 
-We already discussed preconnect and H2 push in the context of connection establishment and server think time, but we can also think of them as helping
+We already discussed H2 push in the context of server think time, but we can also think of them as helping
 discovery, by eliminating latency from the delivery of these resources, and making sure that when the browser discovers it needs them, the
 connections are ready to go, or the resources are already there in the cache.
 ---
@@ -832,103 +898,111 @@ document. Those heuristics work great most of the time, but sometimes they miss,
 priority or too low one. Priority Hints which is still very much a work in progress, will enable developers to define the priorities of
 certain resources, and help the browser do the right thing.
 
-(29 minutes, 11 left)
 
 ---
 layout: true
 class: center, middle
-background-image: url(media/sketches/q.jpg)
+background-image: url(media/sketches/handshake.jpg)
 
 .low-right.no-bg[@yoavweiss]
 ---
 
-# Queueing
-
 ???
 
-Now queueing. We talked about the perils of HTTP/1.1 and how each connection there could only send a single request at a time.
+So we've seen that connection establishment is something that takes a large number of RTTs and is inherently latency bound. How can we get
+rid of it? Or alternatively, get it out of the way so that it won't be on our critical path?
 
 ---
 
-# HTTP2 to the rescue!
-
-???
-Well, H2 solves that problem.
-With H2 you can send multiple streams (each one corresponding to a request-response pair) on a single connection.
-So you can send a very large number of requests in parallel, and have the server serve you the one that is ready.
-That's a huge difference from the way connection handling was done in H1.
-
-Aside on single line queues in airport security vs. multi passanger lines
-
----
-???
-Diagram of H2 vs. H1
-
----
-
-# H2 priorities
+# Preconnect
+<br>
+.code-size[
+### `<link rel=preconnect>`
+]
 
 ???
 
-Since H2 changes many things from H1, it also had to rethink priorities. Before H2 prioritization was simply done by not sending certain
-requests. When H2 came around, it added a prioritization scheme, so that the browser sends all the requests to the server, and the server
-orders the responses based on their priorities.
+One potential answer, at least for everything other than the navigation request, is preconnect.
+You can use `<link rel=preconncet>` hints in either your markup or your HTML in order to make sure the browser connects ahead of time to
+every resource that is a potential bottleneck and which lives on a host different from the main host.
 
-That breaks when you have many H2 servers, when you're working off of many domains, as the result of that is contention. each server sends
-back the responses that matter the most to the server, but if their most important resource is a low-priority one, it will contend with high
-priority resources from a different server.
+XXX: Add an example of such requests?
+---
+
+# Connection coalescing
+
+???
+Another potential answer for those kind of requests is to use connection coalescing to do the work for you.
+The HTTP/2 protocol defines that all the hostnames that are covered by a single certificate are to be coalesced together, given that they
+translate to the same IP.
+
+So, if you serve content from multiple domains that you own, your performance will likely benefit significantly from making sure that all
+these hosts are convered by the same certificate (so mentioned in the certificate's Server Alternate Name extension). You also have to make
+sure that all these hosts translate to the same IP. Then you bypass most of the connection establishment phase, and just reuse the old
+connection.
+
+Why did I say most? Because DNS is still required, in order to *know* that these hosts all translate to the same IP, and to provide some
+safety guarantees to the feature.
 
 ---
 
-# H2 doesn't fix everything
+# TCP Fast Open + TLS 1.3
 
 ???
 
-While H2 is significantly better than H1, it's not quite perfect.
-Because the priority queues are managed in user space, it's hard for the server to be
-very reactive to priority changes, which often leads to low-priority resources sent before high-priority ones.
+Another approach is to switch networking protocols to ones that don't need connection establishment.
+TCP fast open and TLS/1.3 are extensions to the existing protocols enable a similar option that makes sure that for repeat visits, the server can recreate the
+connection based on past info, and can save precious RTTs in that case.
 
-Another problem is TCP losses. Since we use a single TCP connection and TCP is a reliable protocol, any loss means that all H2 streams now
-have to wait for that TCP pakcet to get retransmitted. That's a reincarnation of the Head-of-line blocking problem, in a different way.
+They are relatively new standards, so many standard stack support them as of recently.
+At the same time, there are some networks which react badly to TFO usage and penalize
+users which try to use it (and they misunderstand the packets and consider them a security threat :/).
 
-Finally, since there's no shared compression context between resources - we cannot compress multiple files together as if they were one - it
-means that it's still beneficial to bundle resources together, even when H2 is around.
+Supporting browsers and network stacks (mostly Apple nowadays) have put in place various mitigations to prevent that from happening often.
+
+TLS/1.3 support is starting to role out in browsers. Chrome will start supporting it starting from version 65 (mid March). I'm guessing
+support from other browsers won't be too far behind.
+
+XXX: support in Firefox? Apple? Microsoft?
 
 ---
+
 
 # What's in the future?
----
-
-
-# QUIC and IETF QUIC
 
 ???
 
-One thing we already discussed and that is planned to solve these issues is QUIC and its standard friend IETF QUIC.
-Moving the entire stack to user-space would mean that implementations would have tighter control over what they are sending and when they
-are sending it.
-
-Also, the QUIC protocol handles packet losses differently, meaning that a lost packet will only impact the resources that must be impacted
-(because they wait for the data), but other resources can continue to be read despite it. No more Head-of-line!
-
 ---
 
-# H2 compression dictionaries
+# QUIC & IETF QUIC
 
 ???
 
-There is also a current proposal for creating H2 level compression that will be able to compress multiple resources as if they were a single
-resource. There are currently some security hurdles to making that a reality.
+Another approach is to abandon protocols that require a connection establishment all together!
+We talked earlier about QUIC as a way to improve on H2, but it has some other, interesting features.
+One of them is elimiating the latency connection establishment take. the protocol "remembers" the old connection between
+the browser and the server, and reuses the exchanged keys in future connections. QUIC is a protocol that replaces TCP and TLS completely and
+as such only has a single RTT handshake the first time a user hits it, and a 0-RTT handshake the next time around. 0-RTT means that the
+client can immediately start sending a request to the server, and the server uses information stored in those packets from the previous
+connection in order to establish the new one immediately.
+
+One major problem with that today is that since QUIC is a completely different protocol, browsers don't know which server supports it, so
+they rely on openning a regular TCP+TLS connection, send a request, and get an `Alt-Svc` response which tells them the server supports this
+new protocol.
+So we pay all those extra RTTs today on the initial connection. That's fine if you're Google and most of your users are repeat visits. It's
+less fine if you have many first visitors on your site.
+
+From a deployment perspective, Google's QUIC is currently a non-standard protocol, which is fast evolving and only supported by Chromium
+based browsers.
+
 ---
 
-# Web Packaging
-
+# Alt-SVC over DNS
 
 ???
-Another alternative to bundling is better bundling!
-The Web Packaging proposal will enable to have a file format that bundles multiple resources together (so they can be compressed together)
-while at the same time enable to read and process each one of them individually. Since JS/CSS processing must be done on an entire file,
-that would mean that processing can happen in parallel to downloading instead of happening only once the full file is downloaded.
+At the same time, there's an ongoing proposal for an Alt-Svc extension for DNS, that will enable servers to declare QUIC support already at
+the DNS phase, and save many precious RTTs as browsers will "speak" QUIC directly to the servers instead of trying TCP+TLS first.
+
 ---
 layout: true
 class: center, middle
@@ -944,26 +1018,74 @@ background-image: url(media/sketches/slowstart_contention.jpg)
 
 ???
 
-XXX - add about slow start and how connection coalescing is the only solution there
-otherwise, 14KB.
-Emphasize that slow start is relevant for every new connection established
+Now I want to talk about the solutions for slow-start and contention, and the solutions to those are similar - reduce the number of
+connections we need to use.
 
+Every new connection suffers from slow-start as its trying to figure out the network's capabilities.
+Reducing the number of connections means that we hit this less frequently.
 
+Reducing the number of connections also avoids contention, and requests on separate connections don't end up competing with each other.
+That may fly against your initial intuition. In H1 we used to increase the number of connection by using domain sharding - in order to
+inrease the number of queues. With H2, more queues don't help us, as it just results in people fighting after passing security... (OK,
+analogy kinda crumbled there)
+
+OK, so we want to reduce connections? How do we do that?
+
+---
+.up[
+# Unshard your domains
+]
+
+???
+The first step is to unshard your domains. Make sure that all the resources you're loading come from the same host.
+In the past there were advantages to keeping separate domains: parallelism as well as not sending cookies on each request.
+
+H2's parallelism as well as header compression mean that both these concerns are now mute.
+So just unshard your domains.
 ---
 
 .up[
 # Connection Coalescing
 ]
 
----
+???
 
+The next step we can take on that front is to increase our connection coalescing.
+We already talked about that in the context of connection establishment, but that's also true for slow start and bandwidth contention
+avoidance.
+
+But connection coalescing forces use to unite all your sharded domains under a single SAN and have them served from the same IP.
+That's not necessarily something your security and/or network administrators will like.
+
+---
 .up[
-# Certificate frame
+# Non-credentialed connections
 ]
 
 ???
 
-A new proposal called Certificate frame will enable us to avoid coalesce all Akamized third parties on the same connection as the first
+I won't go into the details but one big caveat today is that connections that are fetching non-credentialed resources (so fonts, fetch() API
+by default, ES6 modules) will so that from a brand new connection, causing handshake and slow-start overhead as well as contention issues.
+This is done for privacy reasons, but we're trying to convince the privacy folks that the wins on that front are not worth the performance
+pain.
+
+---
+# What's in the future?
+
+???
+So how are we planning to make connection coalescing better and simpler to use?
+---
+
+.up[
+# Secondary Certificates
+]
+
+???
+
+A new proposal called Secondary Certificates will enable a server to coalesce any third parties or sharded domains for which it has the
+certs, with not restrictions on the IP or the certificate coverage.
+To put it simply, you would be able to coalesce any domain you own on your main connection.
+A new proposal called Certificate frame will enable us to avoid coalesce all third parties on the same connection as the first
 party, avoiding bandwidth contention between them (because they would all be managed as part of a single sending queue).
 
 ---
@@ -973,6 +1095,10 @@ party, avoiding bandwidth contention between them (because they would all be man
 ]
 
 ???
+
+Another proposal can also be used to cover for which you're not authoritative, and enable you to send them signed by the origin. That's
+still a bit controversial and in early stages, but if successful it can significantly increase the number of resources that can be
+coalesced.
 
 ---
 layout: true
@@ -984,17 +1110,39 @@ background-image: url(media/sketches/bloat.jpg)
 
 # Bloat
 
+???
+
+And finally, Bloat. My favorite.
+
+I won't talk about image bloat as this was covered by Una in her talk yesterday.
+But I will talk about exciting developments in the field of compression.
+
 ---
 
 # Brotli
 
+???
+The major one is Brotli compression, which is now supported in all modern browsers, and you should just use it, no excuses.
+For those who are not familiar with it, Brotli is a compression algorithm that provides significantly better compression (~30%) with the
+same decompression speeds as gzip. So the browser doesn't have to put in more work into decompressing brotli.
+
+On the server, you do need to put in more CPU and time, but that's hopefully something you can integrate into your build process, at least
+for your static resources.
+30% smaller static resources is well worth your while.
+
 ---
 
-# Custom dictionaries
-
+# What's in the future?
 ---
 
 # Compression API
+
+???
+One of the things I'm hoping to work on soon is to add a compression API to browsers, so that you as developers can use the browser's native
+code in order to decompress or compress resources. That will enable a bunch of interesting use-cases such as compressing upload data before
+uploading it (which is important if you're collecting a lot of RUM metric data). Another use case is being able to perform native
+(async) decompression in Service Workers, which can enable developers to experiment with new and exciting compression extensions.
+
 ---
 layout: true
 class: center, middle
@@ -1014,7 +1162,11 @@ background-image: url(media/sketches/present.jpg)
 
 ---
 
-## We can improve things!
+## H2, Push, Preload and Preconnect
+## Also Coalescing and Brotli
+
+---
+# Future improvements underway!
 
 ---
 
