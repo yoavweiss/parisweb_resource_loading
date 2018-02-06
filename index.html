@@ -156,7 +156,7 @@ works to improve resource loading on the web, and solve it once and for all (I h
 
 Let's get started:
 
-(6 minutes)
+(5 minutes)
 
 ---
 
@@ -515,9 +515,9 @@ If we are bound by the network's bandwidth, then it's still that bandwidth that 
 But it enables us to let the server know about all the resources, and letting it efficiently fill the bandwidth pipe with them.
 
 ---
+<img src="media/http1_3.svg" width="45%" class="background" style="display: inline-block">
+<img src="media/http2.svg" width="45%" class="background" style="display: inline-block">
 ???
-Diagram of H2 vs. H1
-
 Here we can see the difference between H1 and H2, where H2 can simply send all the requests up and get the response down, making the
 resource download process bounded by the bandwidth, rather than the latency.
 
@@ -926,7 +926,6 @@ One potential answer, at least for everything other than the navigation request,
 You can use `<link rel=preconncet>` hints in either your markup or your HTML in order to make sure the browser connects ahead of time to
 every resource that is a potential bottleneck and which lives on a host different from the main host.
 
-XXX: Add an example of such requests?
 ---
 
 # Connection coalescing

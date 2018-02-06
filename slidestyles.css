@@ -151,6 +151,9 @@ table {
     -webkit-box-decoration-break: clone;
     display: inline;
 }
+.background {
+    background-color: rgba(128, 128, 128, 0.9);
+}
 .remark-slide-content>div>ul ,
 .remark-slide-content>div li,
 .remark-slide-content>div p{
