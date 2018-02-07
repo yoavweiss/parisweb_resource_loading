@@ -46,6 +46,9 @@ background-image: url(media/sketches/present.jpg)
 
 .low-right.no-bg[@yoavweiss]
 ---
+background-image: url(media/old_street.jpg)
+
+---
 background-image: url(media/pc.jpg)
 
 ???
@@ -360,6 +363,45 @@ background-image: url(media/sketches/discovery.jpg)
 Which then can load even more resources
 
 ---
+
+background-image: url(media/dependency_tree.jpeg)
+
+.block.down[
+## Dependencies!
+]
+
+???
+And this creates a dependency tree that's deep and contains many nodes,
+each layer in that tree depends upon the downloading and processing of
+the layer above it.
+Now some resources are better at this than others: HTML and SVG can be
+processed as they come, so a resource dependency in their first 100
+bytes doesn't need to wait until the entire resource is downloaded
+before the download can start.
+But, CSS and JS are not the same. They have to be processed in their
+entirety (and for CSS, all the blocking CSS has to be downloaed and
+processed) before any resource download can start.
+And that's not a bug, it's inherent to the way these formats work.
+
+And there's inherent tension here between flattenning the dependency
+tree which would help the browser load the page earlier, and the fact
+that humans write websites, and for the humans, it's often better to
+have smaller modules, which they can reason about without looking at the
+larger picture.
+So we have the old-fashioned CSS `@import`s and the newly fangled ES6 modules. They make
+writing and managing code dependencies significantly easier. They also
+make it harder for the browser, adding another layer to that dependency
+tree.
+
+---
+![](media/discovery.png)
+
+???
+
+And you can see that the bandwidth graph for that particular site has a lot of holes in it,
+during which the browser wasn't downloading anything.
+
+---
 background-image: url(media/sketches/q.jpg)
 
 ???
@@ -461,16 +503,7 @@ So resource size certainly still matters.
 (15 minutes - 25 left)
 
 ---
-
-.bullets[
-* Connection establishment
-* Server side processing
-* Slow start
-* Discovery
-* Queueing
-* Bandwidth contention
-* Bloat
-]
+background-image: url(media/sketches/problems.jpg)
 
 
 ???
@@ -515,8 +548,8 @@ If we are bound by the network's bandwidth, then it's still that bandwidth that 
 But it enables us to let the server know about all the resources, and letting it efficiently fill the bandwidth pipe with them.
 
 ---
-<img src="media/http1_3.svg" width="45%" class="background" style="display: inline-block">
-<img src="media/http2.svg" width="45%" class="background" style="display: inline-block">
+<img src="media/http1_3_big.svg" width="49%" class="background" style="display: inline-block">
+<img src="media/http2.svg" width="49%" class="background" style="display: inline-block">
 ???
 Here we can see the difference between H1 and H2, where H2 can simply send all the requests up and get the response down, making the
 resource download process bounded by the bandwidth, rather than the latency.
@@ -544,7 +577,7 @@ While H2 is significantly better than H1, it's not quite perfect.
 # Priority responsiveness
 
 ???
-Because the priority queues are managed in user space, it's hard for the server to be
+Due to implementation concerns I don't want to go into, Because the priority queues are managed in user space, it's hard for the server to be
 very reactive to priority changes, which often leads to low-priority resources sent before high-priority ones.
 
 ---
@@ -563,21 +596,6 @@ have to wait for that TCP pakcet to get retransmitted. That's a reincarnation of
 Finally, since there's no shared compression context between resources - we cannot compress multiple files together as if they were one - it
 means that it's still beneficial to bundle resources together, even when H2 is around.
 
----
-
-# Bandwidth Contention
-
-???
-
-Other than that, H2 doesn't solve the problem of contention, despite the initial promise. It significantly relieves it for resources that
-are on the same host (at least to a large degree), but it doesn't solve it entirely, because web pages today are often composed of many
-hosts, in part due to sharding, and in part because of third party resources. Each one of those hosts runs its own queue, so resources on
-one can contend on bandwidth with resources on another.
-
-That means that if we're downloading a high-priotity resource from one host and a low-priority resource from another, these two will contend
-and the high-priority resource will end up being slower than it would have been, had the low-priority resource never existed.
-
-We'll later see what how we can relieve contention with existing H2 features, and how we can resolve it further.
 ---
 
 # What's in the future?
@@ -727,15 +745,6 @@ Cache Digests is a new proposal that will enable a browser to give a condensed l
 its cache. The server can then know which resources it doesn't need to push, without jumping through hoops and trying to guess that info.
 
 ---
-
-# Early hints
-
-???
-A recent standard also suggests to define a way for us to be able to send headers to the browser before the response is complete,
-which can enable us to send instructions to the browser to preconnect hosts or preload resources before the response is ready, which can be
-helpful to speed up blocking third parties, especially if they are lately discovered.
-
----
 layout: true
 class: center, middle
 background-image: url(media/sketches/discovery.jpg)
@@ -748,66 +757,8 @@ background-image: url(media/sketches/discovery.jpg)
 ]
 
 ???
-Because of the way browsers work, because the browser has to download
-the HTML, in order to find subresources to download, which in turn,
-especially CSS and JS download more resources that they depend on, a lot
-of the resources the browser needs to download are discovered at a late
-phase.
-Fonts and background images are notorious in that sense, since the
-browser has to download all the CSS, and process the DOM in order to
-find what's needed to be downloaded. But Javascript that loads resources
-is just as guilty, as the entire script has to be processed before the
-resource download can start.
 
----
-
-background-image: url(media/dependency_tree.jpeg)
-
-.block.down[
-## Dependencies!
-]
-
-???
-And this creates a dependency tree that's deep and contains many nodes,
-each layer in that tree depends upon the downloading and processing of
-the layer above it.
-Now some resources are better at this than others: HTML and SVG can be
-processed as they come, so a resource dependency in their first 100
-bytes doesn't need to wait until the entire resource is downloaded
-before the download can start.
-But, CSS and JS are not the same. They have to be processed in their
-entirety (and for CSS, all the blocking CSS has to be downloaed and
-processed) before any resource download can start.
-And that's not a bug, it's inherent to the way these formats work.
-
-And there's inherent tension here between flattenning the dependency
-tree which would help the browser load the page earlier, and the fact
-that humans write websites, and for the humans, it's often better to
-have smaller modules, which they can reason about without looking at the
-larger picture.
-So we have the old-fashioned CSS `@import`s and the newly fangled ES6 modules. They make
-writing and managing code dependencies significantly easier. They also
-make it harder for the browser, adding another layer to that dependency
-tree.
-
----
-![](media/discovery.png)
-
-???
-
-And you can see that the bandwidth graph for that particular site has a lot of holes in it,
-during which the browser wasn't downloading anything.
-
-OK, so this is a real issue. What are the solutions to that problem?
----
-
-# H2 push
-
-???
-
-We already discussed H2 push in the context of server think time, but we can also think of them as helping
-discovery, by eliminating latency from the delivery of these resources, and making sure that when the browser discovers it needs them, the
-connections are ready to go, or the resources are already there in the cache.
+We've seen that resource discovery is a real issue. What are the solutions to that problem?
 ---
 
 # Preload
@@ -820,55 +771,6 @@ connections are ready to go, or the resources are already there in the cache.
 Preload is another recent feature that I've been working on. It enables you to tell the browser to kick off the download of a certain
 resource, without defining the exact point where the resource would be used. So, it decouples download from execution, and enables you to
 "flatten" the dependency tree by preloading late-discovered resources ahead of time.
-
----
-
-# Preload &gt; Push
-
-.center.big[
-* Cross origin
-* Cache + cookies
-* Content negotiation
-* Load/error events
-]
-
-???
-If we compare preload to push, it has multiple advantages: it can work for third party resources where H2 push is essentially meant for
-resources under the first party's control. It also takes the cache state into account, as well as the cookies on the client side, where push
-cannot do that. It can be used in content-negotiation scenarios, so for example can be used to fetch webp images only to browsers that
-supprot them, using `Accept` headers. On top of that, it has load and error events, enabling you to build complex JS based loading logic
-using preload.
-
----
-
-# Preload &lt; Push
-
-.wide-img.center[![](media/espn_bandwidth_pre_html_potential.png)]
-???
-
-What's push biggest advantage? The one we've seen before: it can be used to "fill up" the idle times before the browser the browser received
-the HTML, resulting in a significant boost to the time the user first sees content on the screen.
-
----
-
-.left[
-```javascript
-let img = new Image();
-if (Math.random() > 0.5) {
-    img.src = "image1.jpg";
-} else {
-    img.src = "image2.jpg";
-}
-```
-]
-
-???
-Does push and preload solve all discoverability problems?
-Not really, sometimes actual JS needs to run on the client in order to
-figure out what resource the browser will need
-
-But as web developers, we can try to limit that variablity and make sure
-we push and preload everything we can that's needed.
 
 ---
 
@@ -945,63 +847,27 @@ safety guarantees to the feature.
 
 ---
 
-# TCP Fast Open + TLS 1.3
-
-???
-
-Another approach is to switch networking protocols to ones that don't need connection establishment.
-TCP fast open and TLS/1.3 are extensions to the existing protocols enable a similar option that makes sure that for repeat visits, the server can recreate the
-connection based on past info, and can save precious RTTs in that case.
-
-They are relatively new standards, so many standard stack support them as of recently.
-At the same time, there are some networks which react badly to TFO usage and penalize
-users which try to use it (and they misunderstand the packets and consider them a security threat :/).
-
-Supporting browsers and network stacks (mostly Apple nowadays) have put in place various mitigations to prevent that from happening often.
-
-TLS/1.3 support is starting to role out in browsers. Chrome will start supporting it starting from version 65 (mid March). I'm guessing
-support from other browsers won't be too far behind.
-
-XXX: support in Firefox? Apple? Microsoft?
-
----
-
-
 # What's in the future?
 
 ???
 
 ---
 
-# QUIC & IETF QUIC
+.block[
+### TCP Fast Open + TLS 1.3
+]
+.block[
+### QUIC & IETF QUIC
+]
+.block[
+### Alt-Svc over DNS
+]
 
 ???
 
-Another approach is to abandon protocols that require a connection establishment all together!
-We talked earlier about QUIC as a way to improve on H2, but it has some other, interesting features.
-One of them is elimiating the latency connection establishment take. the protocol "remembers" the old connection between
-the browser and the server, and reuses the exchanged keys in future connections. QUIC is a protocol that replaces TCP and TLS completely and
-as such only has a single RTT handshake the first time a user hits it, and a 0-RTT handshake the next time around. 0-RTT means that the
-client can immediately start sending a request to the server, and the server uses information stored in those packets from the previous
-connection in order to establish the new one immediately.
-
-One major problem with that today is that since QUIC is a completely different protocol, browsers don't know which server supports it, so
-they rely on openning a regular TCP+TLS connection, send a request, and get an `Alt-Svc` response which tells them the server supports this
-new protocol.
-So we pay all those extra RTTs today on the initial connection. That's fine if you're Google and most of your users are repeat visits. It's
-less fine if you have many first visitors on your site.
-
-From a deployment perspective, Google's QUIC is currently a non-standard protocol, which is fast evolving and only supported by Chromium
-based browsers.
-
----
-
-# Alt-SVC over DNS
-
-???
-At the same time, there's an ongoing proposal for an Alt-Svc extension for DNS, that will enable servers to declare QUIC support already at
-the DNS phase, and save many precious RTTs as browsers will "speak" QUIC directly to the servers instead of trying TCP+TLS first.
-
+Another approach is to switch networking protocols to ones that don't need connection establishment.
+I won't go into the details due to lack of time, but there are a few alternative protocols that are currently in the process of being
+deployed, which work around the problem by "remembering" the client, and reusing the old connection whenever they see the same client again.
 ---
 layout: true
 class: center, middle
@@ -1010,8 +876,11 @@ background-image: url(media/sketches/slowstart_contention.jpg)
 .low-right.no-bg[@yoavweiss]
 ---
 
-.up[
-## Slow Start & Contention
+.really-up.block[
+## Slow Start
+]
+.down.block[
+## Contention
 ]
 
 
@@ -1069,6 +938,7 @@ This is done for privacy reasons, but we're trying to convince the privacy folks
 pain.
 
 ---
+
 # What's in the future?
 
 ???
@@ -1089,17 +959,6 @@ party, avoiding bandwidth contention between them (because they would all be man
 
 ---
 
-.up[
-# Origin signed resources
-]
-
-???
-
-Another proposal can also be used to cover for which you're not authoritative, and enable you to send them signed by the origin. That's
-still a bit controversial and in early stages, but if successful it can significantly increase the number of resources that can be
-coalesced.
-
----
 layout: true
 class: center, middle
 background-image: url(media/sketches/bloat.jpg)
@@ -1200,6 +1059,7 @@ Huge thanks to Yaara Weiss for her awesome illustrations!
 .bullets.small[
 * JS size graph - HTTPArchive.org
 * TCP slow start - hpbn.co
+* https://www.flickr.com/photos/mpk/90802639 - Old Street
 * https://www.flickr.com/photos/medienzeitmaschine/5150471651 - IBM PC
 * https://www.flickr.com/photos/ryanlavering/5180531131/ - surprise
 * https://www.flickr.com/photos/pheezy/3759117573 - flush

@@ -25,24 +25,23 @@
         <use y="5" xlink:href="#right" />
         <text x="20" y="25" font-size="20px">GET image2.jpg</text>
         <use y="30" xlink:href="#right" />
-        <text x="20" y="50" font-size="20px">GET image3.jpg</text>
-        <use y="55" xlink:href="#right" />
-        <text x="20" y="75" font-size="20px">GET image4.jpg</text>
-        <use y="80" xlink:href="#right" />
-        <text x="20" y="90" font-size="20px">...</text>
-        <text x="20" y="110" font-size="20px">GET imageN.jpg</text>
-        <use y="115" xlink:href="#right" />
-        <text x="20" y="145" font-size="20px">GET imageM.jpg</text>
-        <use y="150" xlink:href="#right" />
-        <text x="20" y="200" font-size="20px">image1.jpg</text>
-        <use y="205" xlink:href="#left" />
-        <text x="20" y="225" font-size="20px">image2.jpg</text>
-        <use y="230" xlink:href="#left" />
-        <text x="20" y="250" font-size="20px">image3.jpg</text>
-        <use y="255" xlink:href="#left" />
-        <text x="20" y="275" font-size="20px">image4.jpg</text>
-        <use y="280" xlink:href="#left" />
-        <text x="20" y="290" font-size="20px">...</text>
+        <text x="20" y="50" font-size="20px">image1.jpg</text>
+        <use y="55" xlink:href="#left" />
+        <text x="20" y="75" font-size="20px">image2.jpg</text>
+        <use y="80" xlink:href="#left" />
+        <text x="20" y="100" font-size="20px">GET image3.jpg</text>
+        <use y="105" xlink:href="#right" />
+        <text x="20" y="125" font-size="20px">GET image4.jpg</text>
+        <use y="130" xlink:href="#right" />
+        <text x="20" y="150" font-size="20px">image3.jpg</text>
+        <use y="155" xlink:href="#left" />
+        <text x="20" y="175" font-size="20px">image4.jpg</text>
+        <use y="180" xlink:href="#left" />
+        <text x="20" y="240" font-size="20px">...</text>
+        <text x="20" y="280" font-size="20px">GET imageN.jpg</text>
+        <use y="285" xlink:href="#right" />
+        <text x="20" y="305" font-size="20px">GET imageM.jpg</text>
+        <use y="310" xlink:href="#right" />
         <text x="20" y="330" font-size="20px">imageN.jpg</text>
         <use y="335" xlink:href="#left" />
         <text x="20" y="355" font-size="20px">imageM.jpg</text>
