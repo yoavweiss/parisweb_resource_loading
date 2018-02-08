@@ -288,7 +288,7 @@ DOM tree, or after calculating styles or after executing scripts.
 
 ---
 
-background-image: url(media/critical_path.jpg)
+background-image: url(media/critical_rendering_path.png)
 
 ???
 The browser needs the HTML in order to create the DOM - the Document Object Model.
@@ -383,6 +383,7 @@ make it harder for the browser, adding another layer to that dependency
 tree.
 
 ---
+background-image: url(media/sketches/discovery.jpg)
 ![](media/discovery.png)
 
 ???
@@ -965,6 +966,15 @@ I won't talk about image bloat as this was covered by Una in her talk yesterday.
 But I will talk about exciting developments in the field of compression.
 
 ---
+# Load what you need
+
+???
+
+Probably the most obvious one - send only what you need.
+Don't include an entire library where you use a single function. Don't include an entire CSS framework where you use bits and pieces.
+That code has costs for loading, it's often blocking and takes a while to run on the client. Don't.
+
+---
 
 # Brotli
 
@@ -998,20 +1008,28 @@ background-image: url(media/sketches/present.jpg)
 .low-right.no-bg[@yoavweiss]
 ---
 
-# Take-aways
+## What do I actually need to do?
 ---
 
-## Latency still dominates resource loading on the web
-
----
-
-## Multiple reasons for slow content
+## HTTP/2
 
 ---
 
-## H2, Push, Preload and Preconnect
-## Also Coalescing and Brotli
+## Use Push, Preload and Preconnect
 
+---
+
+## Unshard your domains
+<br>
+## Coalesce your connections
+
+---
+
+## Load *only* what you need
+
+---
+
+# Brotli
 ---
 
 # Future improvements underway!
@@ -1038,6 +1056,7 @@ background-image: url(media/sketches/present.jpg)
 ]
 
 ---
+background-image: url()
 
 ### Credits
 
@@ -1048,14 +1067,9 @@ Huge thanks to Yaara Weiss for her awesome illustrations!
 <br>
 .bullets.small[
 * JS size graph - HTTPArchive.org
-* TCP slow start - hpbn.co
+* TCP slow start & Critical rendering path - @igrigorik
 * https://www.flickr.com/photos/ryanlavering/5180531131/ - surprise
 * https://www.flickr.com/photos/pheezy/3759117573 - flush
 ]
-
-???
-TODO:
-* Future images, "past present future image", summary image, etc
-* 
 
 </textarea><script type="text/javascript" src="remark-latest.min.js"></script></body></html>

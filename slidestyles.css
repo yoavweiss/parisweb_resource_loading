@@ -89,7 +89,7 @@ body {
     background-position: center center !important;
     background-size: 100% auto !important; /* override remark.js's Javascript-based image auto-scaling */
     background-size: cover;
-    color: hsl(30, 100%, 93%);
+    color: hsl(30, 100%, 0%);
     font-size: 2em;
     padding-left: 1em;
     padding-right: 1em;
@@ -147,12 +147,12 @@ body {
 .remark-slide-content ul,
 .remark-slide-content p,
 table {
-    background-color: rgba(128, 128, 128, 0.9);
+    background-color: rgba(255,255,255, 1);
     -webkit-box-decoration-break: clone;
     display: inline;
 }
 .background {
-    background-color: rgba(128, 128, 128, 0.9);
+    background-color: rgba(128,128,128, 1);
 }
 .remark-slide-content>div>ul ,
 .remark-slide-content>div li,
@@ -163,7 +163,7 @@ table {
 .remark-slide-content .bright>img,
 .remark-slide-content.bright p,
 .remark-slide-content.bright div{
-    background-color: rgba(196, 196, 196, 0.9);
+    background-color: rgba(255,255,255, 1);
     -webkit-box-decoration-break: clone;
 }
 
@@ -217,7 +217,7 @@ div.huge {
 .remark-slide-content a:visited,
 .remark-slide-content a:hover,
 .remark-slide-content a:active {
-    color: #fff;
+    color: #000;
 }
 
 /* Lists
@@ -459,7 +459,7 @@ div.block{
     color: #111;
 }
 div.remark-slide-content div.bullets li{
-    background-color: rgba(128, 128, 128, 0.9);
+    background-color: rgba(255,255,255, 1);
     font-size: 2em;
     padding-left: 150px;
 }
