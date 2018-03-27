@@ -21,21 +21,21 @@
 </g>
 
 <defs>
-<g id="rightarrow" stroke="#fff" stroke-width="4">
+<g id="rightarrow" stroke="#000" stroke-width="4">
     <line x1="0" y1="0" x2="100" y2="100"></line>
     <g stroke-width="2">
         <line x1="98" y1="85" x2="100" y2="100"></line>
         <line x1="85" y1="98" x2="100" y2="100"></line>
     </g>
 </g>
-<g id="leftarrow" stroke="#fff" stroke-width="4">
+<g id="leftarrow" stroke="#000" stroke-width="4">
     <line x1="0" y1="100" x2="100" y2="0"></line>
     <g stroke-width="2">
         <line x1="2" y1="85" x2="0" y2="100"></line>
         <line x1="15" y1="98" x2="0" y2="100"></line>
     </g>
 </g>
-<g id="straightarrow" stroke="#fff" stroke-width="4">
+<g id="straightarrow" stroke="#000" stroke-width="4">
     <line x1="0" y1="0" x2="0" y2="100"></line>
     <g stroke-width="2">
         <line x1="12" y1="85" x2="0" y2="100"></line>
