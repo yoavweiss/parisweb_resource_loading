@@ -132,11 +132,11 @@ And all these different resources now need to be downloaded together in order to
 deliver to our users.
 ---
 
-## Problems
-<br>
-## Today's Solutions
-<br>
-## Tomorrow's
+.big-list[
+* Problems
+* Today's Solutions
+* Tomorrow's
+]
 
 
 ???
@@ -506,7 +506,7 @@ So we have (go over the problems)
 Let's go over these problems in detail and see how we can reduce the
 pain they cause. I'll go over that list, but not necessarily in that order, trying to get the most actionable advice in first.
 
-I'm purposefully leaving out of scope here third parties, which Andy covered in his talk.
+I'm purposefully leaving out of scope here third parties, which Simon will cover in his talk.
 
 ---
 layout: true
@@ -534,19 +534,12 @@ That's a huge difference from the way connection handling was done in H1.
 
 If we go back to the airport security line analogy: H2 is like the same security line in an airport that has those parallel stations, where
 a large number of people can all prepare their luggage for inspection, and whoever's ready can go first.
-I tried to google for a photo to demonstrate that, but after a while realized that googling "airport security" images may seem suspicious...
+Last time I went through such a security line, I thought of taking a picture, but eventually decided it may not be a good idea.
 So no photo for you :)
 
 Note that H2 doesn't magically fix everything not does it download all the resources in parallel.
 If we are bound by the network's bandwidth, then it's still that bandwidth that will limit us.
 But it enables us to let the server know about all the resources, and letting it efficiently fill the bandwidth pipe with them.
-
----
-<img src="media/http1_3_big.svg" width="49%" class="background" style="display: inline-block">
-<img src="media/http2.svg" width="49%" class="background" style="display: inline-block">
-???
-Here we can see the difference between H1 and H2, where H2 can simply send all the requests up and get the response down, making the
-resource download process bounded by the bandwidth, rather than the latency.
 
 ---
 
@@ -571,7 +564,8 @@ While H2 is significantly better than H1, it's not quite perfect.
 # Priority responsiveness
 
 ???
-Due to implementation concerns I don't want to go into, Because the priority queues are managed in user space, it's hard for the server to be
+Because H2 doesn't control the transport layer, we end up with 2 different queues: H2 priority queues and TCP queues.
+And the disconnect there means that it's hard for the server to be
 very reactive to priority changes, which often leads to low-priority resources sent before high-priority ones.
 
 ---
@@ -596,7 +590,7 @@ means that it's still beneficial to bundle resources together, even when H2 is a
 ---
 
 
-# QUIC and IETF QUIC
+# QUIC
 
 ???
 
@@ -847,14 +841,11 @@ safety guarantees to the feature.
 
 ---
 
-.block[
-### TCP Fast Open + TLS 1.3
-]
-.block[
-### QUIC & IETF QUIC
-]
-.block[
-### Alt-Svc over DNS
+.big-list[
+* TCP Fast Open
+* TLS 1.3
+* QUIC 
+* Alt-Svc over DNS
 ]
 
 ???
