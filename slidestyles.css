@@ -393,7 +393,7 @@ h3 .remark-inline-code {
 -------------------------------------------------- */
 
 .remark-container.remark-presenter-mode .remark-notes-area .remark-notes {
-    //font-size: 166%;
+    font-size: 166%;
     line-height: 133%;
 }
 
