@@ -560,6 +560,11 @@ a large number of people can all prepare their luggage for inspection, and whoev
 Last time I went through such a security line, I thought of taking a picture, but eventually decided it may not be a good idea.
 So no photo for you :)
 
+---
+
+# HTTP2 to the rescue!
+
+???
 Note that H2 doesn't magically fix everything not does it download all the resources in parallel.
 If we are bound by the network's bandwidth, then it's still that bandwidth that will limit us.
 But it enables us to let the server know about all the resources, and letting it efficiently fill the bandwidth pipe with them.
@@ -624,6 +629,12 @@ are sending it - which will solve the priority responsiveness problems H2 has.
 
 Also, the QUIC protocol handles packet losses differently, meaning that a lost packet will only impact the resources that must be impacted
 (because they wait for the data), but other resources can continue to be read despite it. No more Head-of-line!
+---
+
+
+# QUIC
+
+???
 
 You may argue that I shouldn't put QUIC in the "future" bit, because it's already shipped in Chrome and we can use it now.
 That's partially true, because you can. But deploying QUIC, unless you're a CDN that can keep up with the 6 weeks cadence of protocol
@@ -900,6 +911,17 @@ connections we need to use.
 Every new connection suffers from slow-start as its trying to figure out the network's capabilities.
 Reducing the number of connections means that we hit this less frequently.
 
+---
+
+.really-up.block[
+## Slow Start
+]
+.down.block[
+## Contention
+]
+
+
+???
 Reducing the number of connections also avoids contention, and requests on separate connections don't end up competing with each other.
 That may fly against your initial intuition. In H1 we used to increase the number of connection by using domain sharding - in order to
 inrease the number of queues. With H2, more queues don't help us, as it just results in people fighting after passing security... (OK,
